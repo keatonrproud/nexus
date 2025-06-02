@@ -3,14 +3,23 @@ import type {
   Project,
   UpdateProjectRequest,
 } from "@/types";
+import { HelpOutline } from "@mui/icons-material";
 import {
   Alert,
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
+  DialogTitle,
+  Link,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   Stack,
   TextField,
+  Typography,
   useTheme,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
@@ -59,6 +68,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [helpDialogOpen, setHelpDialogOpen] = useState(false);
 
   const isEditing = Boolean(project);
 
@@ -283,155 +293,372 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
     e.stopPropagation();
   };
 
-  return (
+  const GoatCounterHelpDialog = () => (
     <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="sm"
+      open={helpDialogOpen}
+      onClose={() => setHelpDialogOpen(false)}
+      maxWidth="md"
       fullWidth
       PaperProps={{
         sx: {
           borderRadius: 3,
           mx: { xs: 1, sm: 2 },
           width: { xs: "calc(100% - 16px)", sm: "100%" },
-          maxWidth: { xs: "calc(100% - 16px)", sm: "600px" },
+          maxWidth: { xs: "calc(100% - 16px)", sm: "700px" },
         },
       }}
-      onClick={handleDialogClick}
     >
-      <form onSubmit={handleSubmit} onClick={handleDialogClick}>
-        <DialogContent
-          sx={{
-            pt: { xs: 2, sm: 3 },
-            pb: { xs: 1, sm: 2 },
-            px: { xs: 2, sm: 3 },
-          }}
-        >
-          <Stack spacing={3}>
-            {error && (
-              <Alert
-                severity="error"
-                sx={{
-                  background: "rgba(255, 255, 255, 0.9)",
-                  backdropFilter: "blur(10px)",
-                }}
+      <DialogTitle sx={{ pb: 1 }}>
+        <Box display="flex" alignItems="center" gap={1}>
+          <HelpOutline color="primary" />
+          <Typography variant="h6" component="span">
+            Setting up GoatCounter Analytics
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Stack spacing={3}>
+          <Typography variant="body1" color="text.secondary">
+            GoatCounter is a privacy-friendly web analytics platform. Follow
+            these steps to set it up for your project:
+          </Typography>
+
+          <Box>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              Step 1: Create a GoatCounter Account
+            </Typography>
+            <List dense>
+              <ListItem sx={{ pl: { xs: 1, sm: 4 } }}>
+                <ListItemIcon sx={{ minWidth: 24 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    1.
+                  </Typography>
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Box>
+                      Visit{" "}
+                      <Link
+                        href="https://www.goatcounter.com/signup"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
+                      >
+                        goatcounter.com/signup
+                      </Link>
+                    </Box>
+                  }
+                />
+              </ListItem>
+              <ListItem sx={{ pl: { xs: 1, sm: 4 } }}>
+                <ListItemIcon sx={{ minWidth: 24 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    2.
+                  </Typography>
+                </ListItemIcon>
+                <ListItemText primary="Choose a site code for your project" />
+              </ListItem>
+              <ListItem sx={{ pl: { xs: 1, sm: 4 } }}>
+                <ListItemIcon sx={{ minWidth: 24 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    3.
+                  </Typography>
+                </ListItemIcon>
+                <ListItemText primary="Complete the signup process" />
+              </ListItem>
+            </List>
+          </Box>
+
+          <Box>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              Step 2: Get Your Site Code
+            </Typography>
+            <List dense>
+              <ListItem sx={{ pl: { xs: 1, sm: 4 } }}>
+                <ListItemIcon sx={{ minWidth: 24 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    1.
+                  </Typography>
+                </ListItemIcon>
+                <ListItemText primary="Your site code is what you chose in the sign up process, and comes before '.goatcounter.com' in the dashboard URL" />
+              </ListItem>
+              <ListItem sx={{ pl: { xs: 1, sm: 4 } }}>
+                <ListItemIcon sx={{ minWidth: 24 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    2.
+                  </Typography>
+                </ListItemIcon>
+                <ListItemText primary="Add the site code to your project's configuration" />
+              </ListItem>
+            </List>
+          </Box>
+
+          <Box>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              Step 3: Get Your API Token
+            </Typography>
+            <List dense>
+              <ListItem sx={{ pl: { xs: 1, sm: 4 } }}>
+                <ListItemIcon sx={{ minWidth: 24 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    1.
+                  </Typography>
+                </ListItemIcon>
+                <ListItemText primary="In the GoatCounter dashboard, go to User (in the header) → API" />
+              </ListItem>
+              <ListItem sx={{ pl: { xs: 1, sm: 4 } }}>
+                <ListItemIcon sx={{ minWidth: 24 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    2.
+                  </Typography>
+                </ListItemIcon>
+                <ListItemText primary="Create a new API token with 'Record Pageviews' and 'Read Statistics' permissions" />
+              </ListItem>
+              <ListItem sx={{ pl: { xs: 1, sm: 4 } }}>
+                <ListItemIcon sx={{ minWidth: 24 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    3.
+                  </Typography>
+                </ListItemIcon>
+                <ListItemText primary="Add the API token to your project's configuration" />
+              </ListItem>
+            </List>
+          </Box>
+
+          <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1 }}>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+              sx={{ fontWeight: "bold" }}
+            >
+              Why provide these details?
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              The site code and API token allow us to automatically show you
+              your GoatCounter analytics directly in your Nexus dashboards.
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+              sx={{ fontWeight: "bold" }}
+            >
+              Need more help?
+            </Typography>
+            <Typography variant="body2">
+              The{" "}
+              <Link
+                href="https://www.goatcounter.com/help"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}
               >
-                {error}
-              </Alert>
-            )}
+                GoatCounter documentation
+              </Link>{" "}
+              has more detailed setup instructions.
+            </Typography>
+          </Box>
+        </Stack>
+      </DialogContent>
+    </Dialog>
+  );
 
-            <TextField
-              ref={nameInputRef}
-              label="Name"
-              value={formData.name}
-              onChange={handleInputChange("name")}
-              onBlur={handleBlur("name")}
-              error={touched.name && Boolean(errors.name)}
-              helperText={touched.name && errors.name}
-              fullWidth
-              required
-              disabled={isLoading}
-              placeholder="Enter a descriptive name for your project"
-            />
-
-            <TextField
-              label="URL"
-              value={formData.url}
-              onChange={handleInputChange("url")}
-              onBlur={handleBlur("url")}
-              error={touched.url && Boolean(errors.url)}
-              helperText={touched.url && errors.url}
-              fullWidth
-              required
-              disabled={isLoading}
-              placeholder="https://example.com"
-            />
-
-            <TextField
-              label="Emoji"
-              value={formData.emoji}
-              onChange={handleInputChange("emoji")}
-              onBlur={handleBlur("emoji")}
-              error={touched.emoji && Boolean(errors.emoji)}
-              helperText={
-                touched.emoji && errors.emoji
-                  ? errors.emoji
-                  : "Enter an emoji to represent your project"
-              }
-              fullWidth
-              required
-              disabled={isLoading}
-              placeholder="🚀"
-            />
-
-            <TextField
-              label="GoatCounter Site Code (Optional)"
-              value={formData.goatcounter_site_code}
-              onChange={handleInputChange("goatcounter_site_code")}
-              onBlur={handleBlur("goatcounter_site_code")}
-              error={
-                touched.goatcounter_site_code &&
-                Boolean(errors.goatcounter_site_code)
-              }
-              helperText={
-                touched.goatcounter_site_code && errors.goatcounter_site_code
-                  ? errors.goatcounter_site_code
-                  : 'Optional: Site code for GoatCounter analytics (e.g., "mysite" for mysite.goatcounter.com)'
-              }
-              fullWidth
-              disabled={isLoading}
-              placeholder="Enter GoatCounter site code for analytics"
-            />
-
-            <TextField
-              label="GoatCounter API Token (Optional)"
-              value={formData.goatcounter_api_token}
-              onChange={handleInputChange("goatcounter_api_token")}
-              onBlur={handleBlur("goatcounter_api_token")}
-              error={
-                touched.goatcounter_api_token &&
-                Boolean(errors.goatcounter_api_token)
-              }
-              helperText={
-                touched.goatcounter_api_token && errors.goatcounter_api_token
-                  ? errors.goatcounter_api_token
-                  : "Optional: API token for GoatCounter analytics (get from Settings → API in your GoatCounter dashboard)"
-              }
-              fullWidth
-              disabled={isLoading}
-              placeholder="Enter GoatCounter API token"
-            />
-          </Stack>
-        </DialogContent>
-
-        <DialogActions
-          sx={{ px: { xs: 2, sm: 3 }, pb: { xs: 2, sm: 3 }, pt: 1 }}
-        >
-          <Button
-            type="submit"
-            variant="contained"
-            loading={isLoading}
+  return (
+    <>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            mx: { xs: 1, sm: 2 },
+            width: { xs: "calc(100% - 16px)", sm: "100%" },
+            maxWidth: { xs: "calc(100% - 16px)", sm: "600px" },
+          },
+        }}
+        onClick={handleDialogClick}
+      >
+        <form onSubmit={handleSubmit} onClick={handleDialogClick}>
+          <DialogContent
             sx={{
-              minWidth: 120,
-              border: 1,
-              color: "black",
-              borderColor: theme.palette.grey[200],
-              textTransform: "none",
-              fontWeight: 600,
-              boxShadow: "none",
-              "&:hover": {
-                boxShadow: "none",
-                borderColor: theme.palette.primary.main,
-                backgroundColor: `${theme.palette.primary.main}15`,
-                borderWidth: 1,
-                color: "black",
-              },
+              pt: { xs: 2, sm: 3 },
+              pb: { xs: 1, sm: 2 },
+              px: { xs: 2, sm: 3 },
             }}
           >
-            {isEditing ? "Update Project" : "Create Project"}
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+            <Stack spacing={3}>
+              {error && (
+                <Alert
+                  severity="error"
+                  sx={{
+                    background: "rgba(255, 255, 255, 0.9)",
+                    backdropFilter: "blur(10px)",
+                  }}
+                >
+                  {error}
+                </Alert>
+              )}
+
+              <TextField
+                ref={nameInputRef}
+                label="Name"
+                value={formData.name}
+                onChange={handleInputChange("name")}
+                onBlur={handleBlur("name")}
+                error={touched.name && Boolean(errors.name)}
+                helperText={touched.name && errors.name}
+                fullWidth
+                required
+                disabled={isLoading}
+                placeholder="Enter a short name for your project"
+              />
+
+              <TextField
+                label="URL"
+                value={formData.url}
+                onChange={handleInputChange("url")}
+                onBlur={handleBlur("url")}
+                error={touched.url && Boolean(errors.url)}
+                helperText={touched.url && errors.url}
+                fullWidth
+                required
+                disabled={isLoading}
+                placeholder="https://example.com"
+              />
+
+              <TextField
+                label="Emoji"
+                value={formData.emoji}
+                onChange={handleInputChange("emoji")}
+                onBlur={handleBlur("emoji")}
+                error={touched.emoji && Boolean(errors.emoji)}
+                helperText={
+                  touched.emoji && errors.emoji
+                    ? errors.emoji
+                    : "Enter an emoji to represent your project"
+                }
+                fullWidth
+                required
+                disabled={isLoading}
+                placeholder="🚀"
+              />
+
+              <TextField
+                label="GoatCounter Site Code (Optional)"
+                value={formData.goatcounter_site_code}
+                onChange={handleInputChange("goatcounter_site_code")}
+                onBlur={handleBlur("goatcounter_site_code")}
+                error={
+                  touched.goatcounter_site_code &&
+                  Boolean(errors.goatcounter_site_code)
+                }
+                helperText={
+                  touched.goatcounter_site_code && errors.goatcounter_site_code
+                    ? errors.goatcounter_site_code
+                    : 'Optional: Site code for GoatCounter analytics (e.g., "mysite" for mysite.goatcounter.com)'
+                }
+                fullWidth
+                disabled={isLoading}
+                placeholder="Enter GoatCounter site code for analytics"
+              />
+
+              <TextField
+                label="GoatCounter API Token (Optional)"
+                value={formData.goatcounter_api_token}
+                onChange={handleInputChange("goatcounter_api_token")}
+                onBlur={handleBlur("goatcounter_api_token")}
+                error={
+                  touched.goatcounter_api_token &&
+                  Boolean(errors.goatcounter_api_token)
+                }
+                helperText={
+                  touched.goatcounter_api_token && errors.goatcounter_api_token
+                    ? errors.goatcounter_api_token
+                    : "Optional: API token for GoatCounter analytics (get from Settings → API in your GoatCounter dashboard)"
+                }
+                fullWidth
+                disabled={isLoading}
+                placeholder="Enter GoatCounter API token"
+              />
+            </Stack>
+          </DialogContent>
+
+          <DialogActions
+            sx={{
+              px: { xs: 2, sm: 3 },
+              pb: { xs: 2, sm: 3 },
+              pt: 1,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Button
+              onClick={() => setHelpDialogOpen(true)}
+              startIcon={<HelpOutline />}
+              variant="text"
+              size="small"
+              sx={{
+                textTransform: "none",
+                color: theme.palette.grey[500],
+                "&:hover": {
+                  backgroundColor: "transparent",
+                  color: theme.palette.grey[800],
+                  boxShadow: "none",
+                },
+              }}
+            >
+              Help with GoatCounter
+            </Button>
+
+            <Button
+              type="submit"
+              variant="contained"
+              loading={isLoading}
+              sx={{
+                minWidth: 120,
+                border: 1,
+                color: "black",
+                borderColor: theme.palette.grey[200],
+                textTransform: "none",
+                fontWeight: 600,
+                boxShadow: "none",
+                "&:hover": {
+                  boxShadow: "none",
+                  borderColor: theme.palette.primary.main,
+                  backgroundColor: `${theme.palette.primary.main}15`,
+                  borderWidth: 1,
+                  color: "black",
+                },
+              }}
+            >
+              {isEditing ? "Update Project" : "Create Project"}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      <GoatCounterHelpDialog />
+    </>
   );
 };

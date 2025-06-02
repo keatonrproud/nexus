@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { AuthController } from '../controllers/authController';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, optionalAuth } from '../middleware/auth';
 import { validateRequest } from '../middleware/validation';
 
 const router = Router();
@@ -63,7 +63,7 @@ router.post(
 );
 
 // POST /auth/logout - Logout user
-router.post('/logout', AuthController.logout);
+router.post('/logout', optionalAuth, AuthController.logout);
 
 // GET /auth/me - Get current user profile
 router.get('/me', authenticateToken, AuthController.getProfile);

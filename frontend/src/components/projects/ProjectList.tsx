@@ -304,18 +304,10 @@ export const ProjectList: React.FC<ProjectListProps> = () => {
       <Typography
         variant="body2"
         color="textSecondary"
-        sx={{ mb: 3, maxWidth: 400, mx: "auto" }}
+        sx={{ mb: 3, maxWidth: 600, mx: "auto" }}
       >
         Create your first project to start tracking bugs and ideas.
       </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        onClick={() => setFormOpen(true)}
-      >
-        Create Project
-      </Button>
     </Box>
   );
 

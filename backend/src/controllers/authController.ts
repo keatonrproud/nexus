@@ -3,6 +3,7 @@ import { analyticsConfig, analyticsService } from '../config/analytics';
 import { authConfig } from '../config/auth';
 import { AuthService } from '../services/authService';
 import { LoginRequest } from '../types/auth';
+import { cache } from '../utils/cache';
 import { JWTUtils } from '../utils/jwt';
 
 // Types for Google OAuth responses
@@ -162,6 +163,14 @@ export class AuthController {
   // POST /auth/logout
   static async logout(req: Request, res: Response): Promise<void> {
     try {
+      // Clear user-specific cache if user is authenticated
+      if (req.user?.userId) {
+        const deletedCount = cache.clearUserCache(req.user.userId);
+        console.log(
+          `Cleared ${deletedCount} cache entries for user ${req.user.userId}`
+        );
+      }
+
       // Clear the refresh token cookie
       res.clearCookie('refreshToken', {
         path: '/auth/refresh',
@@ -619,6 +628,21 @@ export class AuthController {
       }
 
       // All validation attempts failed
+      // Clear user cache if we know the user ID
+      if (accessToken) {
+        try {
+          const decoded = JWTUtils.decodeToken(accessToken);
+          if (decoded?.userId) {
+            const deletedCount = cache.clearUserCache(decoded.userId);
+            console.log(
+              `Cleared ${deletedCount} cache entries for user ${decoded.userId} due to session validation failure`
+            );
+          }
+        } catch (error) {
+          // Ignore decode errors for invalid tokens
+        }
+      }
+
       res.clearCookie('accessToken', {
         path: '/',
         httpOnly: true,

@@ -168,6 +168,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
         py: 1,
         "& > div": {
           transform: size === "large" ? "scale(1.1)" : "scale(1)",
+          outline: "none !important",
           transition: "transform 0.2s ease-in-out",
           "&:hover": {
             transform: size === "large" ? "scale(1.12)" : "scale(1.02)",

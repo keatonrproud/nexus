@@ -2,7 +2,7 @@ import { SharedAnalyticsDashboard } from "@/components/analytics";
 import { RouteLoadingWrapper } from "@/components/common/RouteLoadingWrapper";
 import { ProjectList } from "@/components/projects";
 import { useAuthContext } from "@/contexts";
-import { useDashboardAnalytics } from "@/hooks";
+import { useDashboardAnalytics, useProjects } from "@/hooks";
 import { Box, Container, Fade } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,9 @@ const CrossAppBoard = React.lazy(
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthContext();
+
+  // Get projects data to determine if we should show the CrossAppBoard
+  const { projects, isLoading: projectsLoading } = useProjects();
 
   // Get analytics data to determine if we should show the analytics section
   const {
@@ -33,6 +36,12 @@ const Dashboard: React.FC = () => {
   if (!isAuthenticated) {
     return null; // Will redirect
   }
+
+  // Determine if we should show CrossAppBoard
+  // Show CrossAppBoard if:
+  // 1. We have projects OR we're still loading projects
+  const shouldShowCrossAppBoard =
+    projectsLoading || (projects && projects.length > 0);
 
   // Determine if we should show analytics overview
   // Show analytics if:
@@ -57,47 +66,54 @@ const Dashboard: React.FC = () => {
             </Fade>
 
             {/* Two-column layout for CrossAppBoard and Analytics */}
-            <Fade in timeout={1000}>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: { xs: "1fr", xl: "1fr 1fr" },
-                  gap: { xs: 2, sm: 4 },
-                  alignItems: "start",
-                }}
-              >
-                {/* Left Column: Cross-App Board */}
-                <Box>
-                  <React.Suspense
-                    fallback={
-                      <Box sx={{ p: 3 }}>
-                        <Box
-                          sx={{
-                            height: 400,
-                            bgcolor: "grey.50",
-                            borderRadius: 2,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          Loading tasks...
-                        </Box>
-                      </Box>
-                    }
-                  >
-                    <CrossAppBoard />
-                  </React.Suspense>
-                </Box>
+            {(shouldShowCrossAppBoard || shouldShowAnalytics) && (
+              <Fade in timeout={1000}>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      shouldShowCrossAppBoard && shouldShowAnalytics
+                        ? { xs: "1fr", xl: "1fr 1fr" }
+                        : "1fr",
+                    gap: { xs: 2, sm: 4 },
+                    alignItems: "start",
+                  }}
+                >
+                  {/* Left Column: Cross-App Board - Only show if user has projects */}
+                  {shouldShowCrossAppBoard && (
+                    <Box>
+                      <React.Suspense
+                        fallback={
+                          <Box sx={{ p: 3 }}>
+                            <Box
+                              sx={{
+                                height: 400,
+                                bgcolor: "grey.50",
+                                borderRadius: 2,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              Loading tasks...
+                            </Box>
+                          </Box>
+                        }
+                      >
+                        <CrossAppBoard />
+                      </React.Suspense>
+                    </Box>
+                  )}
 
-                {/* Right Column: Analytics - Only show if analytics are available */}
-                {shouldShowAnalytics && (
-                  <Box>
-                    <SharedAnalyticsDashboard />
-                  </Box>
-                )}
-              </Box>
-            </Fade>
+                  {/* Right Column: Analytics - Only show if analytics are available */}
+                  {shouldShowAnalytics && (
+                    <Box>
+                      <SharedAnalyticsDashboard />
+                    </Box>
+                  )}
+                </Box>
+              </Fade>
+            )}
           </Box>
         </Fade>
       </Container>

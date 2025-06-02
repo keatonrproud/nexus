@@ -57,6 +57,34 @@ class MemoryCache {
       keys: Array.from(this.cache.keys()),
     };
   }
+
+  // Clear all cache entries for a specific user
+  clearUserCache(userId: string): number {
+    const userPrefix = `user:${userId}:`;
+    let deletedCount = 0;
+
+    for (const key of this.cache.keys()) {
+      if (key.startsWith(userPrefix)) {
+        this.cache.delete(key);
+        deletedCount++;
+      }
+    }
+
+    return deletedCount;
+  }
+
+  // Get statistics for a specific user's cache
+  getUserStats(userId: string) {
+    const userPrefix = `user:${userId}:`;
+    const userKeys = Array.from(this.cache.keys()).filter((key) =>
+      key.startsWith(userPrefix)
+    );
+
+    return {
+      size: userKeys.length,
+      keys: userKeys,
+    };
+  }
 }
 
 // Create a singleton instance
@@ -78,7 +106,9 @@ export const cacheMiddleware = (ttl?: number) => {
       return next();
     }
 
-    const key = `${req.originalUrl || req.url}`;
+    // Include user ID in cache key to prevent cross-user data sharing
+    const userId = req.user?.userId || 'anonymous';
+    const key = `user:${userId}:${req.originalUrl || req.url}`;
     const cachedData = cache.get(key);
 
     if (cachedData) {
