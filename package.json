@@ -1,0 +1,62 @@
+{
+  "name": "nexus",
+  "version": "1.0.0",
+  "description": "🔗 Nexus - Central hub for tracking bugs and managing ideas",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev-local",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm run test:run",
+    "test:watch": "concurrently \"npm run test:watch:backend\" \"npm run test:watch:frontend\"",
+    "test:watch:backend": "cd backend && npm test -- --watch",
+    "test:watch:frontend": "cd frontend && npm test",
+    "test:coverage": "npm run test:coverage:backend && npm run test:coverage:frontend",
+    "test:coverage:backend": "cd backend && npm run test:coverage",
+    "test:coverage:frontend": "cd frontend && npm run test:coverage",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:fix": "npm run lint:fix:backend && npm run lint:fix:frontend",
+    "lint:fix:backend": "cd backend && npm run lint -- --fix",
+    "lint:fix:frontend": "cd frontend && npm run lint -- --fix",
+    "prepare": "husky install",
+    "pre-commit": "lint-staged",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "deploy": "fly deploy --ha=false",
+    "test:watch:auto": "node scripts/test-automation.js",
+    "test:related": "node scripts/find-related-tests.js"
+  },
+  "devDependencies": {
+    "chokidar": "^3.6.0",
+    "concurrently": "^8.2.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
+  },
+  "lint-staged": {
+    "backend/**/*.{js,ts}": [
+      "cd backend && npm run lint -- --fix",
+      "cd backend && npm test -- --findRelatedTests --passWithNoTests"
+    ],
+    "frontend/**/*.{js,ts,tsx}": [
+      "cd frontend && npm run lint -- --fix",
+      "cd frontend && npm run test:run -- --related --passWithNoTests"
+    ],
+    "**/*.{js,ts,tsx,json,md}": [
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
+    }
+  }
+}
