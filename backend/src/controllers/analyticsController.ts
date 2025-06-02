@@ -451,12 +451,10 @@ export const getAnalytics = async (req: Request, res: Response) => {
     }
 
     if (!project.goatcounter_site_code || !project.goatcounter_api_token) {
-      return res
-        .status(400)
-        .json({
-          error:
-            'GoatCounter site code or API token not configured for this project',
-        });
+      return res.status(400).json({
+        error:
+          'GoatCounter site code or API token not configured for this project',
+      });
     }
 
     // Fetch analytics data from GoatCounter using new API methods
@@ -523,12 +521,10 @@ export const getPageviews = async (req: Request, res: Response) => {
     }
 
     if (!project.goatcounter_site_code || !project.goatcounter_api_token) {
-      return res
-        .status(400)
-        .json({
-          error:
-            'GoatCounter site code or API token not configured for this project',
-        });
+      return res.status(400).json({
+        error:
+          'GoatCounter site code or API token not configured for this project',
+      });
     }
 
     // Fetch pageview data from GoatCounter using new API method
@@ -585,12 +581,10 @@ export const getDetailedAnalytics = async (req: Request, res: Response) => {
         'toprefs',
       ].includes(type as string)
     ) {
-      return res
-        .status(400)
-        .json({
-          error:
-            'Valid type is required (browsers, systems, locations, languages, sizes, campaigns, toprefs)',
-        });
+      return res.status(400).json({
+        error:
+          'Valid type is required (browsers, systems, locations, languages, sizes, campaigns, toprefs)',
+      });
     }
 
     // Get project with analytics configuration
