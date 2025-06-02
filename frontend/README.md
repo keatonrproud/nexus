@@ -182,9 +182,8 @@ The frontend foundation is complete and ready for:
 
 1. **Component Library** - Build reusable UI components
 2. **Form Handling** - Create/edit modals for projects and items
-3. **Real-time Updates** - WebSocket integration
-4. **Analytics Dashboard** - Charts and metrics
-5. **Advanced Filtering** - Search and filter functionality
+3. **Analytics Dashboard** - Charts and metrics
+4. **Advanced Filtering** - Search and filter functionality
 
 ## 📚 Dependencies
 

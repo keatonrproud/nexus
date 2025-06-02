@@ -218,8 +218,8 @@ const ProjectBoard: React.FC = () => {
     setQuickAddOpen(false);
   };
   const handleQuickAddSuccess = (
-    projectId?: string,
-    itemType?: BoardItemType,
+    _projectId?: string,
+    _itemType?: BoardItemType,
   ) => {
     setQuickAddOpen(false);
   };
@@ -228,8 +228,8 @@ const ProjectBoard: React.FC = () => {
     setSelectedItem(undefined);
   };
   const handleEditItemSuccess = (
-    projectId?: string,
-    itemType?: BoardItemType,
+    _projectId?: string,
+    _itemType?: BoardItemType,
   ) => {
     setEditItemOpen(false);
     setSelectedItem(undefined);

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { goatcounterClient } from '../config/analytics';
 
 // Mock axios
 jest.mock('axios');
@@ -13,6 +12,12 @@ jest.mock('../config/index', () => ({
     },
   },
 }));
+
+// Unmock analytics for this test file
+jest.unmock('../config/analytics');
+
+// Import the actual implementation after mocking dependencies
+import { goatcounterClient } from '../config/analytics';
 
 describe('GoatCounter Analytics', () => {
   beforeEach(() => {
@@ -62,6 +67,7 @@ describe('GoatCounter Analytics', () => {
             start: '2024-01-01',
             end: '2024-01-31',
           },
+          timeout: 10000,
         }
       );
 
@@ -98,6 +104,7 @@ describe('GoatCounter Analytics', () => {
             start: '2024-01-01',
             end: '2024-01-31',
           },
+          timeout: 10000,
         }
       );
 
@@ -136,6 +143,7 @@ describe('GoatCounter Analytics', () => {
             start: '2024-01-01',
             end: '2024-01-31',
           },
+          timeout: 10000,
         }
       );
 
@@ -172,6 +180,7 @@ describe('GoatCounter Analytics', () => {
             'Content-Type': 'application/json',
             'User-Agent': 'Nexus/1.0',
           },
+          timeout: 10000,
         }
       );
     });

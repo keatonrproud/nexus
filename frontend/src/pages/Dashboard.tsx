@@ -46,7 +46,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <RouteLoadingWrapper skeletonVariant="dashboard">
-      <Container maxWidth="xl" sx={{ px: 0 }}>
+      <Container maxWidth="xl">
         <Fade in timeout={600}>
           <Box>
             {/* Projects Section */}

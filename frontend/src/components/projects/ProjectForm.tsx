@@ -3,9 +3,9 @@ import type {
   Project,
   UpdateProjectRequest,
 } from "@/types";
-import { LoadingButton } from "@mui/lab";
 import {
   Alert,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -407,7 +407,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         <DialogActions
           sx={{ px: { xs: 2, sm: 3 }, pb: { xs: 2, sm: 3 }, pt: 1 }}
         >
-          <LoadingButton
+          <Button
             type="submit"
             variant="contained"
             loading={isLoading}
@@ -429,7 +429,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
             }}
           >
             {isEditing ? "Update Project" : "Create Project"}
-          </LoadingButton>
+          </Button>
         </DialogActions>
       </form>
     </Dialog>

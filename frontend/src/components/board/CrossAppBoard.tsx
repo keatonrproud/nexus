@@ -1,6 +1,5 @@
 import { useAllBoardItems, useProjects } from "@/hooks";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { QuickAddForm } from "../common/QuickAddForm";
 
 // Import components directly to avoid TypeScript module issues
@@ -47,7 +46,6 @@ import {
 
 const CrossAppBoard: React.FC = () => {
   const theme = useTheme();
-  const navigate = useNavigate();
 
   // Data hooks
   const { projects } = useProjects();
@@ -656,6 +654,10 @@ const CrossAppBoard: React.FC = () => {
             projectId={selectedItem.project_id}
             shouldNavigate={false}
             editItem={selectedItem}
+            updateBoardItem={(itemId, data) =>
+              updateBoardItem(selectedItem.project_id, itemId, data)
+            }
+            isUpdating={isUpdating}
           />
         )}
       </React.Suspense>

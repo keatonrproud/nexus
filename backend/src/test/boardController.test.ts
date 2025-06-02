@@ -8,12 +8,12 @@ describe('Board Controller', () => {
   let projectId: string;
 
   beforeAll(async () => {
-    // Create a test user and get auth token
+    // Use the seeded test user
     const testUser = {
-      id: 'test-user-id',
+      id: 'test-user-1',
       email: 'test@example.com',
       name: 'Test User',
-      google_id: 'google-test-id',
+      google_id: '123456789',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -22,8 +22,8 @@ describe('Board Controller', () => {
     const tokens = AuthService.generateTokens(testUser);
     authToken = tokens.accessToken;
 
-    // For testing, we'll use a mock project ID
-    projectId = 'test-project-id';
+    // Use the seeded test project
+    projectId = 'test-project-1';
   });
 
   describe('POST /api/board/:projectId', () => {
@@ -32,22 +32,20 @@ describe('Board Controller', () => {
         title: 'Test Bug',
         description: 'This is a test bug',
         type: 'bug',
-        status: 'open',
-        priority: 'high',
+        priority: 'now',
       };
 
       const response = await request(app)
         .post(`/api/board/${projectId}`)
         .set('Authorization', `Bearer ${authToken}`)
-        .send(boardItemData)
-        .expect(201);
+        .send(boardItemData);
 
+      expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
       expect(response.body.item).toMatchObject({
         title: boardItemData.title,
         description: boardItemData.description,
         type: boardItemData.type,
-        status: boardItemData.status,
         priority: boardItemData.priority,
         project_id: projectId,
       });
@@ -68,8 +66,7 @@ describe('Board Controller', () => {
         .expect(201);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.item.status).toBe('open');
-      expect(response.body.item.priority).toBe('medium');
+      expect(response.body.item.priority).toBe('later');
     });
 
     it('should return 400 for invalid board item data', async () => {
@@ -163,10 +160,9 @@ describe('Board Controller', () => {
       expect(response.body.stats.total).toBeDefined();
       expect(response.body.stats.bugs).toBeDefined();
       expect(response.body.stats.ideas).toBeDefined();
-      expect(response.body.stats.open).toBeDefined();
-      expect(response.body.stats.inProgress).toBeDefined();
-      expect(response.body.stats.closed).toBeDefined();
       expect(response.body.stats.byPriority).toBeDefined();
+      expect(response.body.stats.byPriority.now).toBeDefined();
+      expect(response.body.stats.byPriority.later).toBeDefined();
     });
 
     it('should return 401 without authentication', async () => {

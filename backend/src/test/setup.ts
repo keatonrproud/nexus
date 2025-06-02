@@ -1,6 +1,31 @@
 // Jest setup file for backend tests
 import { TestDataManager } from './mockModels';
 
+// Mock the analytics service to prevent HTTP calls during tests
+jest.mock('../config/analytics', () => ({
+  analyticsConfig: {
+    goatcounter: {
+      enabled: false,
+    },
+    events: {
+      bugReported: 'bug_reported',
+      ideaCreated: 'idea_created',
+      itemStatusChanged: 'item_status_changed',
+      itemPriorityChanged: 'item_priority_changed',
+      itemDeleted: 'item_deleted',
+    },
+  },
+  analyticsService: {
+    track: jest.fn().mockResolvedValue(undefined),
+  },
+  goatcounterClient: {
+    getHits: jest.fn(),
+    getTotalCount: jest.fn(),
+    getStatsPage: jest.fn(),
+    trackPageview: jest.fn(),
+  },
+}));
+
 // Mock the models to use our in-memory implementations
 jest.mock('../models/Project', () => {
   const {

@@ -11,9 +11,9 @@ import {
   Update as LaterIcon,
   Schedule as NowIcon,
 } from "@mui/icons-material";
-import { LoadingButton } from "@mui/lab";
 import {
   Box,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -427,7 +427,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
         <DialogActions
           sx={{ px: { xs: 2, sm: 3 }, pb: { xs: 2, sm: 3 }, pt: 1 }}
         >
-          <LoadingButton
+          <Button
             type="submit"
             variant="contained"
             loading={isLoading}
@@ -449,7 +449,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
             }}
           >
             {isEditMode ? "Update" : "Create"}
-          </LoadingButton>
+          </Button>
         </DialogActions>
       </form>
     </Dialog>

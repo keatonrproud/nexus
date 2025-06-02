@@ -90,7 +90,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   const handleQuickAddSuccess = (
-    projectId: string,
+    _projectId: string,
     itemType?: BoardItemType,
   ) => {
     setQuickAddOpen(false);

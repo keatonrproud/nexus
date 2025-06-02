@@ -1,6 +1,5 @@
 import type {
   BoardItem,
-  BoardItemType,
   CreateBoardItemRequest,
   Project,
   UpdateBoardItemRequest,
@@ -81,15 +80,12 @@ const BoardItem: React.FC<BoardItemProps> = React.memo(
       setEditFormOpen(true);
     }, []);
 
-    const handleEditSuccess = React.useCallback(
-      (projectId?: string, itemType?: BoardItemType) => {
-        setEditFormOpen(false);
-        if (onEdit) {
-          onEdit(item);
-        }
-      },
-      [item, onEdit],
-    );
+    const handleEditSuccess = React.useCallback(() => {
+      setEditFormOpen(false);
+      if (onEdit) {
+        onEdit(item);
+      }
+    }, [item, onEdit]);
 
     const handleEditClose = React.useCallback(() => {
       setEditFormOpen(false);
@@ -144,10 +140,6 @@ const BoardItem: React.FC<BoardItemProps> = React.memo(
       },
       [item.title],
     );
-
-    const handleCopySnackbarClose = React.useCallback(() => {
-      setCopySuccess(false);
-    }, []);
 
     return (
       <>

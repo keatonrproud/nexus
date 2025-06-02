@@ -17,7 +17,6 @@ import {
   Button,
   Card,
   CardContent,
-  Container,
   Fade,
   Paper,
   Skeleton,
@@ -327,7 +326,7 @@ export const ProjectList: React.FC<ProjectListProps> = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ px: 0 }}>
+    <Box>
       <Paper
         sx={{
           p: 0,
@@ -454,6 +453,6 @@ export const ProjectList: React.FC<ProjectListProps> = () => {
         project={editingProject || undefined}
         isLoading={isCreating || isUpdating}
       />
-    </Container>
+    </Box>
   );
 };

@@ -5,7 +5,6 @@ import {
   Alert,
   Box,
   Chip,
-  Container,
   FormControl,
   MenuItem,
   Paper,
@@ -432,13 +431,13 @@ const SharedAnalyticsDashboard = () => {
 
   if (error) {
     return (
-      <Container maxWidth="lg">
+      <Box>
         <Paper sx={{ p: 3, borderRadius: 2 }}>
           <Alert severity="error">
             Failed to load analytics data: {error.toString()}
           </Alert>
         </Paper>
-      </Container>
+      </Box>
     );
   }
 
@@ -449,7 +448,7 @@ const SharedAnalyticsDashboard = () => {
   const hasWarnings = metrics?.warnings && metrics.warnings.details?.length > 0;
 
   return (
-    <Container maxWidth="lg" sx={{ px: 0 }}>
+    <Box>
       <Paper
         sx={{
           p: 0,
@@ -842,7 +841,7 @@ const SharedAnalyticsDashboard = () => {
           )}
         </Box>
       </Paper>
-    </Container>
+    </Box>
   );
 };
 
