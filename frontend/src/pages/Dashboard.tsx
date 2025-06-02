@@ -46,7 +46,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <RouteLoadingWrapper skeletonVariant="dashboard">
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{ px: 0 }}>
         <Fade in timeout={600}>
           <Box>
             {/* Projects Section */}
@@ -56,38 +56,46 @@ const Dashboard: React.FC = () => {
               </Box>
             </Fade>
 
-            {/* Analytics Section - Only show if analytics are available */}
-            {shouldShowAnalytics && (
-              <Fade in timeout={1000}>
-                <Box marginBottom={{ xs: 2, sm: 4 }}>
-                  <SharedAnalyticsDashboard />
-                </Box>
-              </Fade>
-            )}
-
-            {/* Cross-App Board Section */}
-            <Fade in timeout={1200}>
-              <Box>
-                <React.Suspense
-                  fallback={
-                    <Box sx={{ p: 3 }}>
-                      <Box
-                        sx={{
-                          height: 400,
-                          bgcolor: "grey.50",
-                          borderRadius: 2,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        Loading tasks...
+            {/* Two-column layout for CrossAppBoard and Analytics */}
+            <Fade in timeout={1000}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", xl: "1fr 1fr" },
+                  gap: { xs: 2, sm: 4 },
+                  alignItems: "start",
+                }}
+              >
+                {/* Left Column: Cross-App Board */}
+                <Box>
+                  <React.Suspense
+                    fallback={
+                      <Box sx={{ p: 3 }}>
+                        <Box
+                          sx={{
+                            height: 400,
+                            bgcolor: "grey.50",
+                            borderRadius: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          Loading tasks...
+                        </Box>
                       </Box>
-                    </Box>
-                  }
-                >
-                  <CrossAppBoard />
-                </React.Suspense>
+                    }
+                  >
+                    <CrossAppBoard />
+                  </React.Suspense>
+                </Box>
+
+                {/* Right Column: Analytics - Only show if analytics are available */}
+                {shouldShowAnalytics && (
+                  <Box>
+                    <SharedAnalyticsDashboard />
+                  </Box>
+                )}
               </Box>
             </Fade>
           </Box>

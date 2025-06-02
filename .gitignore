@@ -1,48 +1,237 @@
-# Dependencies
+# ===================================
+# NEXUS PROJECT .gitignore
+# Full-Stack React + Node.js TypeScript App
+# ===================================
+
+# ===== ENVIRONMENT & SECRETS =====
+# Backend environment files
+backend/.env
+backend/.env.*
+!backend/.env.example
+!backend/env.example
+
+# Frontend environment files  
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Root level environment files
+.env
+.env.*
+!.env.example
+
+# ===== DEPENDENCIES =====
+# Node modules (all levels)
 node_modules/
+*/node_modules/
+**/node_modules/
+
+# Package manager files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.yarn/
+.pnp.*
 
-# Production builds
+# ===== BUILD OUTPUT =====
+# Frontend builds (Vite/React)
+frontend/dist/
+frontend/build/
+frontend/dist-ssr/
+
+# Backend builds (TypeScript)
+backend/dist/
+backend/build/
+
+# Root level builds
 dist/
 build/
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Coverage reports
+# ===== DEVELOPMENT & TESTING =====
+# Test coverage
 coverage/
+*/coverage/
+.nyc_output/
 
-# Logs
-logs
+# Jest cache
+.cache/
+jest-cache/
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
+# ===== RUNTIME & LOGS =====
+# Log files
+logs/
 *.log
+*.log.*
 
 # Runtime data
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
 
-# IDE files
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# ===== DATABASE & ANALYTICS =====
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Database dumps
+*.sql.gz
+*.dump
+
+# Analytics data
+analytics-data/
+
+# ===== IDE & EDITOR FILES =====
+# VSCode
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# IntelliJ/WebStorm
 .idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
 *.swp
 *.swo
+*~
 
-# OS generated files
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ===== OPERATING SYSTEM =====
+# macOS
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
-Thumbs.db
+.AppleDouble
+.LSOverride
 
-# Temporary files
-*.tmp
-*.temp 
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ===== DEPLOYMENT & DEVOPS =====
+# Docker
+.dockerignore.local
+
+# Fly.io
+.fly/
+
+# AWS
+.aws-sam/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ===== SECURITY & CERTIFICATES =====
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# SSH keys
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# ===== MISC DEVELOPMENT =====
+# Storybook
+storybook-static/
+
+# Bundle analyzers
+bundle-analyzer-report.html
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Webpack
+.webpack/
+
+# Vite
+.vite/
+
+# Next.js (if used)
+.next/
+
+# Local development overrides
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Performance monitoring
+.trace/
+
+# Generated documentation
+docs/generated/
+
+# ===== CUSTOM PROJECT FILES =====
+# Local configuration overrides
+config.local.*
+settings.local.*
+
+# Development scripts
+dev-scripts/
+local-scripts/
+
+# Test fixtures
+test-fixtures/
+__fixtures__/
+
+# Backup files
+*.backup
+*.bak
+
+# ===== FRONTEND SPECIFIC =====
+# Vite temp files
+frontend/*.local
+
+# Build artifacts
+frontend/stats.html
+
+# ===== BACKEND SPECIFIC =====
+# PM2 logs
+backend/.pm2/
+
+# Upload directories
+backend/uploads/
+backend/temp/
+
+# Generated API docs
+backend/api-docs/ 

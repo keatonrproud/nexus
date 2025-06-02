@@ -240,9 +240,8 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
           tension: 0.1,
         },
         point: {
-          radius: 4,
-          hoverRadius: 6,
-          borderWidth: 2,
+          radius: 0,
+          hoverRadius: 0,
           hoverBorderWidth: 3,
         },
       },
@@ -295,10 +294,12 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
 
     if (validPageViews.length === 0) return null;
 
-    const chartData = validPageViews
-      .flatMap((hit) => {
-        if (!hit.stats || !Array.isArray(hit.stats)) return [];
-        return hit.stats
+    // Collect all daily data and group by date
+    const dailyData: { [date: string]: number } = {};
+
+    validPageViews.forEach((hit) => {
+      if (hit.stats && Array.isArray(hit.stats)) {
+        hit.stats
           .filter(
             (stat) =>
               stat &&
@@ -306,11 +307,21 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
               "day" in stat &&
               "daily" in stat,
           )
-          .map((stat) => ({
-            date: stat.day,
-            value: Number(stat.daily) || 0,
-          }));
-      })
+          .forEach((stat) => {
+            const date = stat.day;
+            const value = Number(stat.daily) || 0;
+            if (dailyData[date]) {
+              dailyData[date] += value;
+            } else {
+              dailyData[date] = value;
+            }
+          });
+      }
+    });
+
+    // Convert to array and sort by date
+    const chartData = Object.entries(dailyData)
+      .map(([date, value]) => ({ date, value }))
       .sort((a, b) => {
         try {
           return new Date(a.date).getTime() - new Date(b.date).getTime();
@@ -360,9 +371,11 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
           fill: true,
           pointBackgroundColor: vibrantColors[0],
           pointBorderColor: "#fff",
-          pointBorderWidth: 3,
-          pointRadius: 6,
-          pointHoverRadius: 8,
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointHoverBorderWidth: 2,
+          pointHoverBorderColor: "#fff",
         },
       ],
     };
@@ -610,7 +623,7 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
                 <Card
                   elevation={0}
                   sx={{
-                    borderRadius: 4,
+                    borderRadius: 2,
                     border: `1px solid ${theme.palette.divider}`,
                     p: 0,
                     height: "100%",
@@ -650,7 +663,7 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
                 <Card
                   elevation={0}
                   sx={{
-                    borderRadius: 4,
+                    borderRadius: 2,
                     border: `1px solid ${theme.palette.divider}`,
                     p: 0,
                     height: "100%",
@@ -824,7 +837,7 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
                 <Card
                   elevation={0}
                   sx={{
-                    borderRadius: 4,
+                    borderRadius: 2,
                     border: `1px solid ${theme.palette.divider}`,
                     overflow: "hidden",
                     height: "100%",
@@ -891,7 +904,7 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
                 <Card
                   elevation={0}
                   sx={{
-                    borderRadius: 4,
+                    borderRadius: 2,
                     border: `1px solid ${theme.palette.divider}`,
                     height: "100%",
                     display: "flex",
@@ -1113,7 +1126,7 @@ const KPIDashboard = ({ projectId }: KPIDashboardProps) => {
               elevation={0}
               sx={{
                 p: 3,
-                borderRadius: 4,
+                borderRadius: 2,
                 background: `linear-gradient(135deg, ${theme.palette.grey[100]}, ${theme.palette.grey[50]})`,
                 border: `1px solid ${theme.palette.divider}`,
                 textAlign: "center",

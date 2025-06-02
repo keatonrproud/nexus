@@ -49,6 +49,20 @@ const SharedAnalyticsDashboard = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  // Enhanced vibrant colors matching KPIDashboard
+  const vibrantColors = [
+    "#FF6B6B",
+    "#4ECDC4",
+    "#45B7D1",
+    "#96CEB4",
+    "#FECA57",
+    "#FF9FF3",
+    "#54A0FF",
+    "#5F27CD",
+    "#00D2D3",
+    "#FF9F43",
+  ];
+
   const {
     metrics,
     dateRange,
@@ -161,8 +175,8 @@ const SharedAnalyticsDashboard = () => {
             data,
             borderColor: projectColors[site.projectId],
             backgroundColor: projectColors[site.projectId] + "20",
-            tension: 0.1,
-            fill: false,
+            tension: 0.3,
+            fill: true,
             borderWidth: lineWidth,
             borderDash: borderDash,
             pointBackgroundColor: projectColors[site.projectId],
@@ -329,7 +343,7 @@ const SharedAnalyticsDashboard = () => {
       },
       elements: {
         line: {
-          tension: 0.1,
+          tension: 0.4,
         },
         point: {
           radius: isMobile ? 3 : 4,
@@ -458,6 +472,7 @@ const SharedAnalyticsDashboard = () => {
           backgroundColor: "background.paper",
           width: "100%",
           maxWidth: "100%",
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
         {/* Header with title and actions */}
@@ -480,7 +495,7 @@ const SharedAnalyticsDashboard = () => {
               sx={{
                 fontSize: { xs: 28, sm: 35 },
                 mr: 1,
-                color: theme.palette.primary.main,
+                color: vibrantColors[0],
               }}
             />
             <Typography
@@ -577,7 +592,7 @@ const SharedAnalyticsDashboard = () => {
                 mb: 3,
                 borderRadius: 3,
                 border: "none",
-                boxShadow: "0 4px 20px rgba(255, 152, 0, 0.15)",
+                boxShadow: "0 8px 32px rgba(255, 152, 0, 0.15)",
               }}
             >
               <Box>
@@ -638,7 +653,7 @@ const SharedAnalyticsDashboard = () => {
                 mb: 3,
                 borderRadius: 3,
                 border: "none",
-                boxShadow: "0 4px 20px rgba(33, 150, 243, 0.15)",
+                boxShadow: "0 8px 32px rgba(33, 150, 243, 0.15)",
               }}
             >
               No views found across all sites in the selected time period (
@@ -652,7 +667,7 @@ const SharedAnalyticsDashboard = () => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
+                gridTemplateColumns: "1fr",
                 gap: { xs: 2, md: 3 },
                 width: "100%",
               }}
@@ -675,14 +690,86 @@ const SharedAnalyticsDashboard = () => {
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
+                  gridTemplateColumns: "1fr",
                   gap: { xs: 2, md: 3 },
                   alignItems: "start",
                   width: "100%",
                   overflow: "hidden",
                 }}
               >
-                {/* Left: Project Distribution Pie Chart */}
+                {/* Top: Page Views Over Time */}
+                {chartData && (
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: { xs: 1.5, md: 3 },
+                      borderRadius: 2,
+                      border: `1px solid ${theme.palette.divider}`,
+                      width: "100%",
+                      maxWidth: "100%",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        mb: 2,
+                        fontWeight: 600,
+                        fontSize: { xs: "1rem", md: "1.25rem" },
+                      }}
+                    >
+                      Views Over Time
+                    </Typography>
+                    <Box
+                      sx={{
+                        height: { xs: 220, sm: 250, md: 300 },
+                        position: "relative",
+                        width: "100%",
+                        maxWidth: "100%",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <Line data={chartData} options={chartOptions} />
+                    </Box>
+                    {/* Show legend below chart on small mobile with truncated legend */}
+                    {isSmallMobile && chartData && (
+                      <Box sx={{ mt: 2 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 0.5,
+                            justifyContent: "center",
+                          }}
+                        >
+                          {chartData.datasets.map((dataset, index) => (
+                            <Chip
+                              key={index}
+                              label={dataset.label}
+                              size="small"
+                              sx={{
+                                backgroundColor: dataset.borderColor + "20",
+                                borderLeft: `3px solid ${dataset.borderColor}`,
+                                color: theme.palette.text.primary,
+                                fontSize: "0.65rem",
+                                height: 24,
+                                maxWidth: "calc(50% - 2px)", // Ensure max 2 chips per row
+                                "& .MuiChip-label": {
+                                  px: 1,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                },
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+                  </Paper>
+                )}
+
+                {/* Bottom: Project Distribution Pie Chart */}
                 {pieChartData && (
                   <Paper
                     elevation={0}
@@ -738,78 +825,6 @@ const SharedAnalyticsDashboard = () => {
                                     index
                                   ] + "20",
                                 borderLeft: `3px solid ${pieChartData.datasets[0].backgroundColor[index]}`,
-                                color: theme.palette.text.primary,
-                                fontSize: "0.65rem",
-                                height: 24,
-                                maxWidth: "calc(50% - 2px)", // Ensure max 2 chips per row
-                                "& .MuiChip-label": {
-                                  px: 1,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                },
-                              }}
-                            />
-                          ))}
-                        </Box>
-                      </Box>
-                    )}
-                  </Paper>
-                )}
-
-                {/* Right: Page Views Over Time */}
-                {chartData && (
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: { xs: 1.5, md: 3 },
-                      borderRadius: 2,
-                      border: `1px solid ${theme.palette.divider}`,
-                      width: "100%",
-                      maxWidth: "100%",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        mb: 2,
-                        fontWeight: 600,
-                        fontSize: { xs: "1rem", md: "1.25rem" },
-                      }}
-                    >
-                      Page Views Over Time
-                    </Typography>
-                    <Box
-                      sx={{
-                        height: { xs: 220, sm: 250, md: 300 },
-                        position: "relative",
-                        width: "100%",
-                        maxWidth: "100%",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <Line data={chartData} options={chartOptions} />
-                    </Box>
-                    {/* Show legend below chart on small mobile with truncated legend */}
-                    {isSmallMobile && chartData && (
-                      <Box sx={{ mt: 2 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: 0.5,
-                            justifyContent: "center",
-                          }}
-                        >
-                          {chartData.datasets.map((dataset, index) => (
-                            <Chip
-                              key={index}
-                              label={dataset.label}
-                              size="small"
-                              sx={{
-                                backgroundColor: dataset.borderColor + "20",
-                                borderLeft: `3px solid ${dataset.borderColor}`,
                                 color: theme.palette.text.primary,
                                 fontSize: "0.65rem",
                                 height: 24,

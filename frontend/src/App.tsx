@@ -12,7 +12,6 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { theme } from "./theme";
 
 // Lazy load pages for better performance
-const Analytics = React.lazy(() => import("@/pages/Analytics"));
 const Dashboard = React.lazy(() => import("@/pages/Dashboard"));
 const Login = React.lazy(() => import("@/pages/Login"));
 const ProjectBoard = React.lazy(() => import("@/pages/ProjectBoard"));
@@ -20,13 +19,14 @@ const ProjectBoard = React.lazy(() => import("@/pages/ProjectBoard"));
 // Create a spinner fallback for Suspense
 const SuspenseFallback = () => <LoadingSpinner fullScreen minimal />;
 
-// Create a client for React Query
+// Create a client for React Query with improved configuration for long sessions
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 3,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 10 * 60 * 1000, // 10 minutes - longer stale time for better UX
+      gcTime: 30 * 60 * 1000, // 30 minutes - longer garbage collection time for persistence
+      refetchOnWindowFocus: false, // Reduce unnecessary refetches for better battery life
     },
     mutations: {
       onError: (error) => {
@@ -81,14 +81,6 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ProjectBoard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/projects/:projectId/analytics"
-                  element={
-                    <ProtectedRoute>
-                      <Analytics />
                     </ProtectedRoute>
                   }
                 />

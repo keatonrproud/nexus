@@ -194,23 +194,27 @@ export class AuthService {
 
   static async getUserById(userId: string): Promise<User | null> {
     try {
-      // Use in-memory storage if Supabase is not configured
-      if (!isSupabaseConfigured()) {
-        return devUsers.get(userId) || null;
+      // Check for dev mode first
+      if (!config.SUPABASE_URL || !config.SUPABASE_SERVICE_ROLE_KEY) {
+        // Development mode - return dev user
+        const devUser = devUsers.get(userId);
+        return devUser || null;
       }
 
-      // Use Supabase for production
       const supabase = getSupabaseClient();
-
       const { data: user, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) return null;
+      if (error || !user) {
+        return null;
+      }
+
       return user;
     } catch (error) {
+      console.error('Error getting user by ID:', error);
       return null;
     }
   }

@@ -68,6 +68,9 @@ router.post('/logout', AuthController.logout);
 // GET /auth/me - Get current user profile
 router.get('/me', authenticateToken, AuthController.getProfile);
 
+// GET /auth/validate - Validate and refresh current session
+router.get('/validate', AuthController.validateSession);
+
 // GET /auth/google/url - Get Google OAuth URL (helper endpoint)
 router.get('/google/url', AuthController.getGoogleAuthUrl);
 

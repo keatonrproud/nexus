@@ -6,6 +6,34 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1976d2",
+  "shortcuts": [
+    {
+      "name": "Add Bug",
+      "short_name": "Bug",
+      "description": "Quickly report a bug",
+      "url": "/?quick_add=bug",
+      "icons": [
+        {
+          "src": "/favicon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Add Idea",
+      "short_name": "Idea",
+      "description": "Quickly capture an idea",
+      "url": "/?quick_add=idea",
+      "icons": [
+        {
+          "src": "/favicon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "/favicon-16x16.png",

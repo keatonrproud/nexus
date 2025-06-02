@@ -164,6 +164,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
         minHeight: size === "small" ? 50 : size === "medium" ? 60 : 70,
         opacity: disabled ? 0.6 : 1,
         pointerEvents: disabled ? "none" : "auto",
+        outline: "none !important",
         py: 1,
         "& > div": {
           transform: size === "large" ? "scale(1.1)" : "scale(1)",

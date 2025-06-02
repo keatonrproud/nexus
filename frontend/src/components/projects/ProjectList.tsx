@@ -8,8 +8,8 @@ import type {
 import { getProjectColors } from "@/utils";
 import {
   Add as AddIcon,
-  Dashboard as DashboardIcon,
   Folder as ProjectIcon,
+  RocketLaunch as ProjectsIcon,
 } from "@mui/icons-material";
 import {
   Alert,
@@ -351,11 +351,11 @@ export const ProjectList: React.FC<ProjectListProps> = () => {
           <Box
             sx={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}
           >
-            <DashboardIcon
+            <ProjectsIcon
               sx={{
                 fontSize: { xs: 28, sm: 35 },
                 mr: 1,
-                color: theme.palette.primary.main,
+                color: theme.palette.secondary.main,
                 flexShrink: 0,
               }}
             />
@@ -365,7 +365,6 @@ export const ProjectList: React.FC<ProjectListProps> = () => {
               sx={{
                 fontSize: { xs: "1rem", sm: "1.25rem" },
                 overflow: "hidden",
-                textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
               }}
             >

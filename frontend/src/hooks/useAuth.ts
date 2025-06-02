@@ -9,49 +9,44 @@ import { useOptimisticQuery } from "./useOptimisticQuery";
 const authApi = {
   getCurrentUser: async (): Promise<AuthUser | null> => {
     try {
-      const response = await apiClient.get<{
-        success: boolean;
-        user: AuthUser;
-      }>("/auth/me");
+      const response = await apiClient.get("/auth/me");
+      // Backend returns { success: true, user: {...} }
       return response.data.user;
     } catch (error) {
-      // If 401, user is not authenticated - silently return null
+      // Handle 401 specifically
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         return null;
       }
-
-      // For other errors, only throw if not on login page
-      const isOnLoginPage =
-        typeof window !== "undefined" &&
-        window.location.pathname.includes("/login");
-      if (isOnLoginPage) {
-        // On login page, treat any auth error as "not authenticated"
-        return null;
-      }
-
       throw error;
     }
   },
 
-  login: async (params?: { credential?: string }): Promise<LoginResponse> => {
-    // If credential is provided, use OneTap flow - keep this for backward compatibility
-    // but it should not be used since we removed OneTap
-    if (params?.credential) {
-      console.log("Using credential authentication");
-      const response = await apiClient.post<LoginResponse>(
-        "/auth/google/callback",
-        {
-          credential: params.credential,
-        },
-      );
-      return response.data;
+  validateSession: async (): Promise<AuthUser | null> => {
+    try {
+      const response = await apiClient.get("/auth/validate");
+      return response.data.user;
+    } catch (error) {
+      // Handle 401 specifically
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        return null;
+      }
+      throw error;
     }
+  },
 
-    // Otherwise, use traditional OAuth redirect
-    console.log("Using traditional OAuth redirect");
-    window.location.href = "/api/auth/google";
-    // This won't actually return, but TypeScript needs it
-    return Promise.resolve({} as LoginResponse);
+  login: async (payload?: { credential?: string }): Promise<LoginResponse> => {
+    if (payload?.credential) {
+      // Use credential-based login (OneTap)
+      const response = await apiClient.post("/auth/google/callback", {
+        credential: payload.credential,
+      });
+      return response.data;
+    } else {
+      // Use OAuth redirect - this will redirect the browser
+      window.location.href = "/api/auth/google";
+      // Return a pending response since we're redirecting
+      return { success: false, user: {} as AuthUser };
+    }
   },
 
   logout: async (): Promise<void> => {
@@ -72,7 +67,7 @@ export function useAuth() {
     typeof window !== "undefined" &&
     window.location.pathname.includes("/login");
 
-  // Get current user with optimistic loading
+  // Get current user with optimistic loading and improved caching for long sessions
   const {
     data: user,
     isLoading,
@@ -81,8 +76,8 @@ export function useAuth() {
   } = useOptimisticQuery({
     queryKey: ["auth", "user"],
     queryFn: authApi.getCurrentUser,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 30 * 60 * 1000, // 30 minutes - longer than before for better persistence
+    cacheTime: 24 * 60 * 60 * 1000, // 24 hours - much longer to survive app restarts
     retry: (failureCount, error) => {
       // Don't retry on 401 errors (authentication failures)
       if (axios.isAxiosError(error) && error.response?.status === 401) {

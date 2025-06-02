@@ -298,6 +298,7 @@ export class BoardController {
           userId: req.user.userId,
           projectId,
           itemId,
+          itemTitle: item?.title || 'unknown',
           itemType: item?.type || 'unknown',
           itemPriority: item?.priority || 'unknown',
           userAgent: req.headers['user-agent'],

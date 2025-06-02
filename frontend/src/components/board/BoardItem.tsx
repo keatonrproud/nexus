@@ -412,6 +412,7 @@ const BoardItem: React.FC<BoardItemProps> = React.memo(
           onClose={handleEditClose}
           onSuccess={handleEditSuccess}
           defaultType={item.type}
+          defaultPriority={item.priority}
           projectId={item.project_id}
           editItem={item}
           createBoardItem={createBoardItem}

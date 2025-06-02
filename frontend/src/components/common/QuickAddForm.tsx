@@ -34,6 +34,7 @@ interface QuickAddFormProps {
   onClose: () => void;
   onSuccess: (projectId: string, itemType?: BoardItemType) => void;
   defaultType: BoardItemType;
+  defaultPriority: "now" | "later" | null;
   projectId?: string | null; // If null, show project selector
   shouldNavigate?: boolean; // Whether to trigger navigation on success
   editItem?: BoardItem; // If provided, the form will be in edit mode
@@ -56,6 +57,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
   onClose,
   onSuccess,
   defaultType,
+  defaultPriority,
   projectId,
   shouldNavigate = false,
   editItem,
@@ -78,7 +80,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
     title: editItem ? editItem.title : "",
     projectId: editItem ? editItem.project_id : defaultProjectId,
     type: editItem ? editItem.type : defaultType,
-    priority: editItem ? editItem.priority : "now",
+    priority: editItem ? editItem.priority : defaultPriority || "now",
   });
 
   const [titleError, setTitleError] = useState("");
@@ -115,11 +117,11 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
       setFormData((prev) => ({
         ...prev,
         title: "",
-        priority: "now",
+        priority: defaultPriority || "now",
       }));
       setTitleError("");
     }
-  }, [open, isEditMode]);
+  }, [open, isEditMode, defaultPriority]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -261,7 +263,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
               </FormControl>
             )}
 
-            {/* Type Selection and Priority in same row - Disable type selection in edit mode */}
+            {/* Type Selection and Priority in same row - Remove disabled prop for edit mode */}
             <Stack direction="row" spacing={2} alignItems="center">
               {/* Type Selection */}
               <Box sx={{ flex: 2 }}>
@@ -271,7 +273,6 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
                   onChange={handleTypeChange}
                   aria-label="item type"
                   fullWidth
-                  disabled={isEditMode} // Disable type editing in edit mode
                   sx={{
                     "& .MuiToggleButton-root": {
                       py: 1.5,
@@ -284,15 +285,16 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
                     value="idea"
                     sx={{
                       borderColor: theme.palette.grey[200],
-                      color: theme.palette.primary.main,
+                      color: theme.palette.grey[500], // Grey when not selected
                       "&:hover": {
                         borderColor: theme.palette.primary.main,
                         backgroundColor: "white",
+                        color: theme.palette.primary.main,
                       },
                       "&.Mui-selected": {
                         backgroundColor: `${theme.palette.primary.main}15`,
                         borderColor: `${theme.palette.primary.main}15`,
-                        color: theme.palette.primary.main,
+                        color: theme.palette.primary.main, // Blue when selected
                         "&:hover": {
                           borderColor: theme.palette.primary.main,
                           backgroundColor: `${theme.palette.primary.main}15`,
@@ -307,15 +309,16 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
                     value="bug"
                     sx={{
                       borderColor: theme.palette.grey[200],
-                      color: theme.palette.error.main,
+                      color: theme.palette.grey[500], // Grey when not selected
                       "&:hover": {
                         borderColor: theme.palette.error.main,
                         backgroundColor: "white",
+                        color: theme.palette.error.main,
                       },
                       "&.Mui-selected": {
                         backgroundColor: `${theme.palette.error.main}15`,
                         borderColor: `${theme.palette.error.main}15`,
-                        color: theme.palette.error.main,
+                        color: theme.palette.error.main, // Red when selected
                         "&:hover": {
                           borderColor: theme.palette.error.main,
                           backgroundColor: `${theme.palette.error.main}15`,

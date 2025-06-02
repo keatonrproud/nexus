@@ -105,7 +105,6 @@ Successfully implemented a comprehensive KPI Dashboard UI for the bug/idea board
 
 ### Frontend Integration
 
-- **Analytics page** (`frontend/src/pages/Analytics.tsx`) updated to use KPIDashboard
 - **Component exports** through `frontend/src/components/analytics/index.ts`
 - **Hook exports** through `frontend/src/hooks/index.ts`
 - **Type definitions** in `frontend/src/types/index.ts`
@@ -165,7 +164,6 @@ Successfully implemented a comprehensive KPI Dashboard UI for the bug/idea board
 - ✅ `frontend/src/hooks/index.ts` (updated)
 - ✅ `frontend/src/services/analyticsService.ts` (created)
 - ✅ `frontend/src/types/index.ts` (updated)
-- ✅ `frontend/src/pages/Analytics.tsx` (updated)
 
 ## Estimated Time: 5-6 hours ✅ COMPLETED
 

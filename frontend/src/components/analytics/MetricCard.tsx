@@ -90,7 +90,7 @@ const MetricCard = ({
           minHeight: 140,
           display: "flex",
           flexDirection: "column",
-          borderRadius: 2,
+          borderRadius: 1,
         }}
       >
         <CardContent sx={{ flexGrow: 1, p: 3 }}>

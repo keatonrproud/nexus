@@ -408,9 +408,9 @@ SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
 # Authentication
 JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
-JWT_EXPIRES_IN=15m
+JWT_EXPIRES_IN=24h
 REFRESH_TOKEN_SECRET=your-refresh-token-secret-minimum-32-characters
-REFRESH_TOKEN_EXPIRES_IN=7d
+REFRESH_TOKEN_EXPIRES_IN=30d
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id
@@ -865,9 +865,9 @@ const configSchema = z.object({
 
   // Authentication
   JWT_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string().default("15m"),
+  JWT_EXPIRES_IN: z.string().default("24h"),
   REFRESH_TOKEN_SECRET: z.string().min(32),
-  REFRESH_TOKEN_EXPIRES_IN: z.string().default("7d"),
+  REFRESH_TOKEN_EXPIRES_IN: z.string().default("30d"),
 
   // Google OAuth
   GOOGLE_CLIENT_ID: z.string(),
@@ -925,9 +925,9 @@ const configSchema = z.object({
 
   // Authentication
   JWT_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string().default("15m"),
+  JWT_EXPIRES_IN: z.string().default("24h"),
   REFRESH_TOKEN_SECRET: z.string().min(32),
-  REFRESH_TOKEN_EXPIRES_IN: z.string().default("7d"),
+  REFRESH_TOKEN_EXPIRES_IN: z.string().default("30d"),
 
   // Google OAuth
   GOOGLE_CLIENT_ID: z.string(),

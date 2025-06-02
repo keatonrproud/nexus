@@ -14,11 +14,11 @@ const getBaseUrl = (): string => {
 export const authConfig = {
   jwt: {
     secret: config.JWT_SECRET || 'your-super-secret-jwt-key-min-32-chars',
-    expiresIn: config.JWT_EXPIRES_IN,
+    expiresIn: config.JWT_EXPIRES_IN || '24h',
     refreshSecret:
       config.REFRESH_TOKEN_SECRET ||
       'your-super-secret-refresh-key-min-32-chars',
-    refreshExpiresIn: config.REFRESH_TOKEN_EXPIRES_IN,
+    refreshExpiresIn: config.REFRESH_TOKEN_EXPIRES_IN || '30d',
   },
 
   google: {
@@ -32,7 +32,7 @@ export const authConfig = {
     httpOnly: true,
     secure: config.NODE_ENV === 'production',
     sameSite: 'lax' as const,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days to match refresh token lifetime
   },
 
   session: {

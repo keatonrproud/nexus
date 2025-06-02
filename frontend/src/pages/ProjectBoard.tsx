@@ -91,7 +91,10 @@ const ProjectBoard: React.FC = () => {
   const [selectedItem, setSelectedItem] = React.useState<
     BoardItem | undefined
   >();
-  const [defaultType, setDefaultType] = React.useState<BoardItemType>("bug");
+  const [defaultType, setDefaultType] = React.useState<BoardItemType>("idea");
+  const [defaultPriority, setDefaultPriority] = React.useState<
+    "now" | "later" | null
+  >(null);
   const [projectEditOpen, setProjectEditOpen] = React.useState(false);
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [itemPositions, setItemPositions] = React.useState<
@@ -202,8 +205,12 @@ const ProjectBoard: React.FC = () => {
       }
     }
   };
-  const handleCreateItem = (type: BoardItemType) => {
+  const handleCreateItem = (
+    type: BoardItemType,
+    priority: "now" | "later" | null = null,
+  ) => {
     setDefaultType(type);
+    setDefaultPriority(priority);
     setQuickAddOpen(true);
   };
   const handleEditItem = (item: BoardItem) => {
@@ -386,7 +393,7 @@ const ProjectBoard: React.FC = () => {
 
   return (
     <Layout>
-      <Container maxWidth="lg">
+      <Container maxWidth="xl" sx={{ px: 0 }}>
         {/* Header with Project Info */}
         <Stack
           direction="row"
@@ -577,28 +584,6 @@ const ProjectBoard: React.FC = () => {
                   Task Board
                 </Typography>
               </Box>
-              <Button
-                variant="outlined"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={() => handleCreateItem("idea")}
-                sx={{
-                  border: "1px solid transparent",
-                  py: 1,
-                  px: { xs: 2, sm: 3 },
-                  fontWeight: 500,
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  flexShrink: 0,
-                  whiteSpace: "nowrap",
-                  "&:hover": {
-                    border: `1px solid ${theme.palette.grey[500]}`,
-                    boxShadow: "none",
-                    backgroundColor: "transparent",
-                  },
-                }}
-              >
-                Add Item
-              </Button>
             </Box>
             <DndContext
               sensors={sensors}
@@ -670,6 +655,28 @@ const ProjectBoard: React.FC = () => {
                           >
                             {isLoading ? "–" : nowItems.length}
                           </Typography>
+                          <Box sx={{ flex: 1 }} />
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<AddIcon />}
+                            onClick={() => handleCreateItem("idea", "now")}
+                            sx={{
+                              border: "1px solid transparent",
+                              py: 0.5,
+                              px: 1.5,
+                              fontWeight: 500,
+                              fontSize: "0.75rem",
+                              color: theme.palette.warning.main,
+                              "&:hover": {
+                                border: `1px solid ${theme.palette.warning.main}`,
+                                backgroundColor: "rgba(255, 152, 0, 0.05)",
+                                color: theme.palette.warning.main,
+                              },
+                            }}
+                          >
+                            Add Item
+                          </Button>
                         </Box>
                       }
                       sx={{ pb: 1 }}
@@ -706,15 +713,6 @@ const ProjectBoard: React.FC = () => {
                                 >
                                   No urgent items
                                 </Typography>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  startIcon={<AddIcon />}
-                                  onClick={() => handleCreateItem("bug")}
-                                  sx={{ borderRadius: 2 }}
-                                >
-                                  Add Item
-                                </Button>
                               </Box>
                             ) : (
                               <React.Suspense fallback={renderSkeletonColumn()}>
@@ -801,6 +799,28 @@ const ProjectBoard: React.FC = () => {
                           >
                             {isLoading ? "–" : laterItems.length}
                           </Typography>
+                          <Box sx={{ flex: 1 }} />
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<AddIcon />}
+                            onClick={() => handleCreateItem("idea", "later")}
+                            sx={{
+                              border: "1px solid transparent",
+                              py: 0.5,
+                              px: 1.5,
+                              fontWeight: 500,
+                              fontSize: "0.75rem",
+                              color: theme.palette.info.main,
+                              "&:hover": {
+                                border: `1px solid ${theme.palette.info.main}`,
+                                backgroundColor: "rgba(255, 152, 0, 0.05)",
+                                color: theme.palette.info.main,
+                              },
+                            }}
+                          >
+                            Add Item
+                          </Button>
                         </Box>
                       }
                       sx={{ pb: 1 }}
@@ -838,15 +858,6 @@ const ProjectBoard: React.FC = () => {
                                 >
                                   No future items
                                 </Typography>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  startIcon={<AddIcon />}
-                                  onClick={() => handleCreateItem("idea")}
-                                  sx={{ borderRadius: 2 }}
-                                >
-                                  Add Item
-                                </Button>
                               </Box>
                             ) : (
                               <React.Suspense fallback={renderSkeletonColumn()}>
@@ -926,6 +937,7 @@ const ProjectBoard: React.FC = () => {
             onClose={handleQuickAddClose}
             onSuccess={handleQuickAddSuccess}
             defaultType={defaultType}
+            defaultPriority={defaultPriority || "now"}
             projectId={projectId}
             shouldNavigate={false}
             createBoardItem={createBoardItem}
@@ -940,6 +952,7 @@ const ProjectBoard: React.FC = () => {
               onClose={handleEditItemClose}
               onSuccess={handleEditItemSuccess}
               defaultType={selectedItem.type}
+              defaultPriority={selectedItem.priority}
               projectId={projectId}
               shouldNavigate={false}
               editItem={selectedItem}

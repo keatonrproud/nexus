@@ -3,6 +3,7 @@ import { analyticsConfig, analyticsService } from '../config/analytics';
 import { authConfig } from '../config/auth';
 import { AuthService } from '../services/authService';
 import { LoginRequest } from '../types/auth';
+import { JWTUtils } from '../utils/jwt';
 
 // Types for Google OAuth responses
 interface GoogleTokenResponse {
@@ -72,6 +73,13 @@ export class AuthController {
         path: '/auth/refresh',
       });
 
+      // Set access token as httpOnly cookie for automatic authentication
+      res.cookie('accessToken', tokens.accessToken, {
+        ...authConfig.cookies,
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days to match access token lifetime
+      });
+
       res.status(200).json({
         success: true,
         user: {
@@ -113,6 +121,13 @@ export class AuthController {
         path: '/auth/refresh',
       });
 
+      // Set new access token as httpOnly cookie for automatic authentication
+      res.cookie('accessToken', tokens.accessToken, {
+        ...authConfig.cookies,
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days to match access token lifetime
+      });
+
       res.status(200).json({
         success: true,
         accessToken: tokens.accessToken,
@@ -123,6 +138,14 @@ export class AuthController {
       // Clear invalid refresh token cookie
       res.clearCookie('refreshToken', {
         path: '/auth/refresh',
+        httpOnly: true,
+        secure: authConfig.cookies.secure,
+        sameSite: authConfig.cookies.sameSite,
+      });
+
+      // Clear invalid access token cookie
+      res.clearCookie('accessToken', {
+        path: '/',
         httpOnly: true,
         secure: authConfig.cookies.secure,
         sameSite: authConfig.cookies.sameSite,
@@ -426,7 +449,7 @@ export class AuthController {
       res.cookie('accessToken', tokens.accessToken, {
         ...authConfig.cookies,
         path: '/',
-        maxAge: 15 * 60 * 1000, // 15 minutes
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days to match access token lifetime
       });
 
       // Redirect to frontend dashboard
@@ -496,7 +519,7 @@ export class AuthController {
       res.cookie('accessToken', tokens.accessToken, {
         ...authConfig.cookies,
         path: '/',
-        maxAge: 15 * 60 * 1000, // 15 minutes
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days to match access token lifetime
       });
 
       res.status(200).json({
@@ -513,6 +536,111 @@ export class AuthController {
       res.status(401).json({
         success: false,
         error: 'Authentication failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  // GET /auth/validate - Validate and refresh current session
+  static async validateSession(req: Request, res: Response): Promise<void> {
+    try {
+      // Check for access token in cookies
+      const accessToken = req.cookies?.accessToken;
+      const refreshToken = req.cookies?.refreshToken;
+
+      if (!accessToken && !refreshToken) {
+        res.status(401).json({
+          error: 'No valid session found',
+          code: 'NO_SESSION',
+        });
+        return;
+      }
+
+      // First try to validate the access token
+      if (accessToken) {
+        try {
+          const decoded = JWTUtils.verifyAccessToken(accessToken);
+          // Access token is valid, get user info
+          const user = await AuthService.getUserById(decoded.userId);
+          if (user) {
+            res.status(200).json({
+              success: true,
+              user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+              },
+              accessToken: accessToken,
+            });
+            return;
+          }
+        } catch (error) {
+          // Access token invalid or expired, try refresh token
+          console.log('Access token invalid, attempting refresh');
+        }
+      }
+
+      // If access token validation failed, try refresh token
+      if (refreshToken) {
+        try {
+          const tokens = await AuthService.refreshTokens(refreshToken);
+
+          // Set new tokens as cookies
+          res.cookie('refreshToken', tokens.refreshToken, {
+            ...authConfig.cookies,
+            path: '/auth/refresh',
+          });
+
+          res.cookie('accessToken', tokens.accessToken, {
+            ...authConfig.cookies,
+            path: '/',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days to match access token lifetime
+          });
+
+          // Get user info from new access token
+          const decoded = JWTUtils.verifyAccessToken(tokens.accessToken);
+          const user = await AuthService.getUserById(decoded.userId);
+
+          if (user) {
+            res.status(200).json({
+              success: true,
+              user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+              },
+              accessToken: tokens.accessToken,
+            });
+            return;
+          }
+        } catch (error) {
+          console.error('Session refresh failed:', error);
+        }
+      }
+
+      // All validation attempts failed
+      res.clearCookie('accessToken', {
+        path: '/',
+        httpOnly: true,
+        secure: authConfig.cookies.secure,
+        sameSite: authConfig.cookies.sameSite,
+      });
+
+      res.clearCookie('refreshToken', {
+        path: '/auth/refresh',
+        httpOnly: true,
+        secure: authConfig.cookies.secure,
+        sameSite: authConfig.cookies.sameSite,
+      });
+
+      res.status(401).json({
+        error: 'Session validation failed',
+        code: 'SESSION_INVALID',
+      });
+    } catch (error) {
+      console.error('Session validation error:', error);
+      res.status(500).json({
+        error: 'Session validation failed',
         details: error instanceof Error ? error.message : 'Unknown error',
       });
     }

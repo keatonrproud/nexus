@@ -378,6 +378,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           onClose={() => setQuickAddOpen(false)}
           onSuccess={handleQuickAddSuccess}
           defaultType={quickAddType}
+          defaultPriority="now"
           projectId={project.id}
           shouldNavigate={false}
           createBoardItem={createBoardItem}

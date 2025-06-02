@@ -400,6 +400,59 @@ export function useAllBoardItems(filters?: BoardFilters) {
   // Ensure boardItems is always an array
   const safeBoardItems = Array.isArray(boardItems) ? boardItems : [];
 
+  // Create board item mutation - need project ID for individual creates
+  const createMutation = useMutation({
+    mutationFn: ({
+      projectId,
+      data,
+    }: {
+      projectId: string;
+      data: CreateBoardItemRequest;
+    }) => {
+      return boardItemsApi.createBoardItem(projectId, data);
+    },
+    onMutate: async ({ projectId, data }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey });
+
+      // Snapshot the previous value
+      const previousItems = queryClient.getQueryData(queryKey);
+
+      // Optimistically update to the new value
+      const tempId = generateTempId();
+      const optimisticItem: BoardItem = {
+        id: tempId,
+        project_id: projectId,
+        title: data.title,
+        description: data.description,
+        type: data.type,
+        priority: data.priority || "later",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      queryClient.setQueryData(queryKey, (old: BoardItem[] = []) => [
+        ...old,
+        optimisticItem,
+      ]);
+
+      return { previousItems, tempId };
+    },
+    onError: (err, _variables, context) => {
+      // If the mutation fails, rollback
+      if (context?.previousItems) {
+        queryClient.setQueryData(queryKey, context.previousItems);
+      }
+      console.error("Failed to create board item:", handleApiError(err));
+    },
+    onSuccess: (realItem, _variables, context) => {
+      // Replace the temporary item with the real one
+      queryClient.setQueryData(queryKey, (old: BoardItem[] = []) =>
+        old.map((item) => (item.id === context?.tempId ? realItem : item)),
+      );
+    },
+  });
+
   // Update board item mutation - need project ID for individual updates
   const updateMutation = useMutation({
     mutationFn: ({
@@ -486,7 +539,10 @@ export function useAllBoardItems(filters?: BoardFilters) {
     (item) => item.type === "idea",
   ).length;
 
-  const isAnyMutating = updateMutation.isPending || deleteMutation.isPending;
+  const isAnyMutating =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
 
   return {
     // Data - using real board items (optimistic updates are in the cache)
@@ -497,16 +553,20 @@ export function useAllBoardItems(filters?: BoardFilters) {
 
     // Loading states
     isLoading,
+    isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
     isAnyMutating,
 
     // Error states
     error,
+    createError: createMutation.error,
     updateError: updateMutation.error,
     deleteError: deleteMutation.error,
 
     // Actions
+    createBoardItem: (projectId: string, data: CreateBoardItemRequest) =>
+      createMutation.mutate({ projectId, data }),
     updateBoardItem: (
       projectId: string,
       itemId: string,

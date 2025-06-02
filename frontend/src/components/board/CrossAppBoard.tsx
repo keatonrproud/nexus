@@ -1,5 +1,6 @@
 import { useAllBoardItems, useProjects } from "@/hooks";
 import React from "react";
+import { useSearchParams } from "react-router-dom";
 import { QuickAddForm } from "../common/QuickAddForm";
 
 // Import components directly to avoid TypeScript module issues
@@ -8,6 +9,7 @@ const BoardItem = React.lazy(() => import("./BoardItem"));
 import type {
   BoardItem as BoardItemType,
   BoardItemType as BoardItemTypeEnum,
+  CreateBoardItemRequest,
 } from "@/types";
 import type {
   DragEndEvent,
@@ -46,6 +48,7 @@ import {
 
 const CrossAppBoard: React.FC = () => {
   const theme = useTheme();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Data hooks
   const { projects } = useProjects();
@@ -53,8 +56,10 @@ const CrossAppBoard: React.FC = () => {
     boardItems,
     isLoading: itemsLoading,
     error: itemsError,
+    createBoardItem,
     updateBoardItem,
     deleteBoardItem,
+    isCreating,
     isUpdating,
   } = useAllBoardItems({});
 
@@ -66,6 +71,9 @@ const CrossAppBoard: React.FC = () => {
   >();
   const [defaultType, setDefaultType] =
     React.useState<BoardItemTypeEnum>("idea");
+  const [defaultPriority, setDefaultPriority] = React.useState<
+    "now" | "later" | null
+  >(null);
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [itemPositions, setItemPositions] = React.useState<
     Record<string, number>
@@ -73,6 +81,51 @@ const CrossAppBoard: React.FC = () => {
   const [dragTargetColumn, setDragTargetColumn] = React.useState<
     "now" | "later" | null
   >(null);
+
+  // Store pending item data for creation
+  const selectedProjectIdRef = React.useRef<string>("");
+
+  // Initialize with first project
+  React.useEffect(() => {
+    if (projects.length > 0 && !selectedProjectIdRef.current) {
+      selectedProjectIdRef.current = projects[0].id;
+    }
+  }, [projects]);
+
+  // Wrapper function for creating board items that handles project selection
+  const handleCreateBoardItem = React.useCallback(
+    (data: CreateBoardItemRequest) => {
+      console.log("handleCreateBoardItem called with:", data);
+      // Use the selected project ID or default to first project
+      const targetProjectId =
+        selectedProjectIdRef.current ||
+        (projects.length > 0 ? projects[0].id : "");
+      if (targetProjectId) {
+        console.log(
+          "Creating item immediately with projectId:",
+          targetProjectId,
+          "data:",
+          data,
+        );
+        createBoardItem(targetProjectId, data);
+      }
+    },
+    [createBoardItem, projects],
+  );
+
+  // Handle PWA shortcuts via URL parameters
+  React.useEffect(() => {
+    const quickAddParam = searchParams.get("quick_add");
+    if (quickAddParam === "bug" || quickAddParam === "idea") {
+      setDefaultType(quickAddParam);
+      setQuickAddOpen(true);
+
+      // Clear the URL parameter after opening the form
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("quick_add");
+      setSearchParams(newSearchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Create a projects lookup for efficient access
   const projectsMap = React.useMemo(() => {
@@ -102,8 +155,12 @@ const CrossAppBoard: React.FC = () => {
   }, [boardItems, itemPositions]);
 
   // Event handlers
-  const handleCreateItem = (type: BoardItemTypeEnum) => {
+  const handleCreateItem = (
+    type: BoardItemTypeEnum,
+    priority: "now" | "later" | null = null,
+  ) => {
     setDefaultType(type);
+    setDefaultPriority(priority);
     setQuickAddOpen(true);
   };
 
@@ -121,9 +178,14 @@ const CrossAppBoard: React.FC = () => {
 
   const handleQuickAddClose = () => {
     setQuickAddOpen(false);
+    selectedProjectIdRef.current = ""; // Clear selected project
   };
 
-  const handleQuickAddSuccess = () => {
+  const handleQuickAddSuccess = (projectId: string) => {
+    console.log("handleQuickAddSuccess called with projectId:", projectId);
+    // Update the selected project ID for future creates
+    selectedProjectIdRef.current = projectId;
+    // Close the dialog
     setQuickAddOpen(false);
   };
 
@@ -328,28 +390,6 @@ const CrossAppBoard: React.FC = () => {
               All Tasks
             </Typography>
           </Box>
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => handleCreateItem("idea")}
-            sx={{
-              border: "1px solid transparent",
-              py: 1,
-              px: { xs: 2, sm: 3 },
-              fontWeight: 500,
-              fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              flexShrink: 0,
-              whiteSpace: "nowrap",
-              "&:hover": {
-                border: `1px solid ${theme.palette.grey[500]}`,
-                boxShadow: "none",
-                backgroundColor: "transparent",
-              },
-            }}
-          >
-            Add Item
-          </Button>
         </Box>
 
         {/* Error State */}
@@ -427,6 +467,28 @@ const CrossAppBoard: React.FC = () => {
                       >
                         {itemsLoading ? "–" : nowItems.length}
                       </Typography>
+                      <Box sx={{ flex: 1 }} />
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<AddIcon />}
+                        onClick={() => handleCreateItem("idea", "now")}
+                        sx={{
+                          border: "1px solid transparent",
+                          py: 0.5,
+                          px: 1.5,
+                          fontWeight: 500,
+                          fontSize: "0.75rem",
+                          color: theme.palette.warning.main,
+                          "&:hover": {
+                            border: `1px solid ${theme.palette.warning.main}`,
+                            backgroundColor: "rgba(255, 152, 0, 0.05)",
+                            color: theme.palette.warning.main,
+                          },
+                        }}
+                      >
+                        Add Item
+                      </Button>
                     </Box>
                   }
                   sx={{ pb: 1 }}
@@ -463,15 +525,6 @@ const CrossAppBoard: React.FC = () => {
                             >
                               No urgent items
                             </Typography>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              startIcon={<AddIcon />}
-                              onClick={() => handleCreateItem("bug")}
-                              sx={{ borderRadius: 2 }}
-                            >
-                              Add Item
-                            </Button>
                           </Box>
                         ) : (
                           nowItems.map((item, index) => (
@@ -554,6 +607,28 @@ const CrossAppBoard: React.FC = () => {
                       >
                         {itemsLoading ? "–" : laterItems.length}
                       </Typography>
+                      <Box sx={{ flex: 1 }} />
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<AddIcon />}
+                        onClick={() => handleCreateItem("idea", "later")}
+                        sx={{
+                          border: "1px solid transparent",
+                          py: 0.5,
+                          px: 1.5,
+                          fontWeight: 500,
+                          fontSize: "0.75rem",
+                          color: theme.palette.info.main,
+                          "&:hover": {
+                            border: `1px solid ${theme.palette.info.main}`,
+                            backgroundColor: "rgba(33, 150, 243, 0.05)",
+                            color: theme.palette.info.main,
+                          },
+                        }}
+                      >
+                        Add Item
+                      </Button>
                     </Box>
                   }
                   sx={{ pb: 1 }}
@@ -591,15 +666,6 @@ const CrossAppBoard: React.FC = () => {
                             >
                               No future items
                             </Typography>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              startIcon={<AddIcon />}
-                              onClick={() => handleCreateItem("idea")}
-                              sx={{ borderRadius: 2 }}
-                            >
-                              Add Item
-                            </Button>
                           </Box>
                         ) : (
                           laterItems.map((item, index) => (
@@ -642,7 +708,10 @@ const CrossAppBoard: React.FC = () => {
           onClose={handleQuickAddClose}
           onSuccess={handleQuickAddSuccess}
           defaultType={defaultType}
+          defaultPriority={defaultPriority || "now"}
           shouldNavigate={false}
+          createBoardItem={handleCreateBoardItem}
+          isCreating={isCreating}
         />
 
         {selectedItem && (
@@ -651,6 +720,7 @@ const CrossAppBoard: React.FC = () => {
             onClose={handleEditItemClose}
             onSuccess={handleEditItemSuccess}
             defaultType={selectedItem.type}
+            defaultPriority={selectedItem.priority}
             projectId={selectedItem.project_id}
             shouldNavigate={false}
             editItem={selectedItem}
