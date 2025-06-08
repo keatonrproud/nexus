@@ -42,12 +42,14 @@ USER nodejs
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=8080
+# Add Node.js options for faster startup
+ENV NODE_OPTIONS="--max-old-space-size=256 --no-warnings --no-deprecation"
 
 # Expose port
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+# Health check - faster check to prevent startup delay
+HEALTHCHECK --interval=1s --timeout=1s --start-period=1s --retries=3 \
   CMD node -e "require('http').get('http://0.0.0.0:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 # Start the application

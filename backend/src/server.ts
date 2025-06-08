@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import * as path from 'path';
+import { initializeDatabase } from './config/database';
 import { config } from './config/index';
 import analyticsRoutes from './routes/analytics';
 import authRoutes from './routes/auth';
@@ -11,7 +12,8 @@ import { logger } from './utils/logger';
 
 const app = express();
 
-// Health check endpoint first - before any middleware
+// Health check endpoint FIRST - before any middleware or database initialization
+// This ensures health checks pass immediately on startup
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
@@ -35,6 +37,12 @@ app.use(
     credentials: true,
   })
 );
+
+// Initialize database connection in the background
+// This prevents the health check from being delayed by DB connection
+initializeDatabase().catch((err) => {
+  logger.error('Failed to initialize database:', err);
+});
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {

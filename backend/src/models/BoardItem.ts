@@ -1,6 +1,6 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import { config } from '../config';
+import { getSupabase } from '../config/database';
 import {
   BoardItem,
   BoardItemListQuery,
@@ -81,24 +81,9 @@ export const bulkDeleteSchema = z.object({
     .min(1, 'At least one item ID is required'),
 });
 
-// Lazy-load Supabase client
-let supabaseClient: SupabaseClient | null = null;
-
+// Get Supabase client - Use shared instance
 function getSupabaseClient(): SupabaseClient {
-  if (!supabaseClient) {
-    const supabaseUrl = config.SUPABASE_URL;
-    const supabaseKey = config.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error(
-        'Supabase configuration is not properly set up. Please configure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your .env file.'
-      );
-    }
-
-    supabaseClient = createClient(supabaseUrl, supabaseKey);
-  }
-
-  return supabaseClient;
+  return getSupabase();
 }
 
 export class BoardItemModel {

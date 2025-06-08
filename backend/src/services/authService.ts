@@ -1,7 +1,8 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { OAuth2Client } from 'google-auth-library';
 import { config } from '../config';
 import { authConfig } from '../config/auth';
+import { getSupabase } from '../config/database';
 import { AuthTokens, GoogleUserInfo, User } from '../types/auth';
 import { JWTUtils } from '../utils/jwt';
 
@@ -11,28 +12,13 @@ const googleClient = new OAuth2Client(
   authConfig.google.redirectUri
 );
 
-// Lazy-load Supabase client to avoid initialization errors
-let supabaseClient: SupabaseClient | null = null;
-
 // In-memory storage for development mode
 const devUsers: Map<string, User> = new Map();
 let userIdCounter = 1;
 
+// Get Supabase client - Use shared instance
 function getSupabaseClient(): SupabaseClient {
-  if (!supabaseClient) {
-    const supabaseUrl = config.SUPABASE_URL;
-    const supabaseKey = config.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error(
-        'Supabase configuration is not properly set up. Please configure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your .env file.'
-      );
-    }
-
-    supabaseClient = createClient(supabaseUrl, supabaseKey);
-  }
-
-  return supabaseClient;
+  return getSupabase();
 }
 
 function isSupabaseConfigured(): boolean {

@@ -87,10 +87,6 @@ const ProjectBoard: React.FC = () => {
 
   // UI state
   const [quickAddOpen, setQuickAddOpen] = React.useState(false);
-  const [editItemOpen, setEditItemOpen] = React.useState(false);
-  const [selectedItem, setSelectedItem] = React.useState<
-    BoardItem | undefined
-  >();
   const [defaultType, setDefaultType] = React.useState<BoardItemType>("idea");
   const [defaultPriority, setDefaultPriority] = React.useState<
     "now" | "later" | null
@@ -213,10 +209,6 @@ const ProjectBoard: React.FC = () => {
     setDefaultPriority(priority);
     setQuickAddOpen(true);
   };
-  const handleEditItem = (item: BoardItem) => {
-    setSelectedItem(item);
-    setEditItemOpen(true);
-  };
   const handleDeleteItem = (itemId: string) => {
     // Perform actual deletion
     deleteBoardItem(itemId);
@@ -229,17 +221,6 @@ const ProjectBoard: React.FC = () => {
     _itemType?: BoardItemType,
   ) => {
     setQuickAddOpen(false);
-  };
-  const handleEditItemClose = () => {
-    setEditItemOpen(false);
-    setSelectedItem(undefined);
-  };
-  const handleEditItemSuccess = (
-    _projectId?: string,
-    _itemType?: BoardItemType,
-  ) => {
-    setEditItemOpen(false);
-    setSelectedItem(undefined);
   };
 
   // Drag and drop handlers
@@ -727,9 +708,7 @@ const ProjectBoard: React.FC = () => {
                                   >
                                     <BoardItem
                                       item={item}
-                                      onEdit={handleEditItem}
                                       onDelete={handleDeleteItem}
-                                      onClick={handleEditItem}
                                       isLoading={isLoading}
                                       createBoardItem={createBoardItem}
                                       updateBoardItem={updateBoardItem}
@@ -872,9 +851,7 @@ const ProjectBoard: React.FC = () => {
                                   >
                                     <BoardItem
                                       item={item}
-                                      onEdit={handleEditItem}
                                       onDelete={handleDeleteItem}
-                                      onClick={handleEditItem}
                                       isLoading={isLoading}
                                       createBoardItem={createBoardItem}
                                       updateBoardItem={updateBoardItem}
@@ -945,23 +922,6 @@ const ProjectBoard: React.FC = () => {
             isCreating={isCreating}
             isUpdating={isUpdating}
           />
-
-          {selectedItem && (
-            <QuickAddForm
-              open={editItemOpen}
-              onClose={handleEditItemClose}
-              onSuccess={handleEditItemSuccess}
-              defaultType={selectedItem.type}
-              defaultPriority={selectedItem.priority}
-              projectId={projectId}
-              shouldNavigate={false}
-              editItem={selectedItem}
-              createBoardItem={createBoardItem}
-              updateBoardItem={updateBoardItem}
-              isCreating={isCreating}
-              isUpdating={isUpdating}
-            />
-          )}
 
           <ProjectForm
             open={projectEditOpen}

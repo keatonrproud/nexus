@@ -133,7 +133,9 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
     }
 
     if (formData.title.length > 200) {
-      setTitleError("Title must be less than 200 characters");
+      setTitleError(
+        `Title must be less than 200 characters (${formData.title.length}/200)`,
+      );
       return;
     }
 
@@ -191,8 +193,8 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
     const value = e.target.value;
     setFormData((prev) => ({ ...prev, title: value }));
 
-    // Clear error when user starts typing
-    if (titleError && value.trim()) {
+    // Clear error when user starts typing and is within limits
+    if (titleError && value.trim() && value.length <= 200) {
       setTitleError("");
     }
   };
@@ -208,6 +210,20 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
 
   const handleDialogClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+  };
+
+  // Helper function to get the appropriate helper text for the title field
+  const getTitleHelperText = () => {
+    if (titleError) {
+      return titleError;
+    }
+
+    const charCount = formData.title.length;
+    if (charCount >= 180) {
+      return `${charCount}/200 characters`;
+    }
+
+    return "";
   };
 
   return (
@@ -411,7 +427,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({
               value={formData.title}
               onChange={handleTitleChange}
               error={!!titleError}
-              helperText={titleError}
+              helperText={getTitleHelperText()}
               fullWidth
               required
               autoFocus

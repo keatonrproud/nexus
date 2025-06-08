@@ -1,6 +1,6 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import { config } from '../config';
+import { getSupabase } from '../config/database';
 import {
   CreateProjectRequest,
   Project,
@@ -82,13 +82,9 @@ export const projectListQuerySchema = z.object({
   order: z.enum(['asc', 'desc']).optional(),
 });
 
-// Get Supabase client
+// Get Supabase client - Use shared instance
 const getSupabaseClient = (): SupabaseClient => {
-  if (!config.SUPABASE_URL || !config.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Supabase configuration is missing');
-  }
-
-  return createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY);
+  return getSupabase();
 };
 
 export class ProjectModel {

@@ -8,7 +8,7 @@
     "dev-build": "cd .. && docker build -t nexus .",
     "dev-docker": "cd .. && docker run -p 8080:8080 --env-file backend/.env nexus",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node --expose-gc --no-warnings dist/server.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

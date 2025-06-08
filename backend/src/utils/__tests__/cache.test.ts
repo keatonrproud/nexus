@@ -16,8 +16,11 @@ describe('Cache User Isolation', () => {
       originalUrl: '/analytics/dashboard',
       user: { userId: 'user123' },
     };
+
+    // Create a proper mock for res.json that can be overridden
+    const originalJsonMock = jest.fn();
     const mockRes: any = {
-      json: jest.fn(),
+      json: originalJsonMock,
     };
     const mockNext = jest.fn();
 
@@ -25,17 +28,28 @@ describe('Cache User Isolation', () => {
     middleware(mockReq, mockRes, mockNext);
     expect(mockNext).toHaveBeenCalled();
 
-    // Simulate caching data
+    // Simulate the response being sent (which would cache the data)
     const testData = { sites: [], aggregatedStats: null };
-    cache.set('user:user123:/analytics/dashboard', testData);
+    mockRes.json(testData);
 
     // Reset mocks
     jest.clearAllMocks();
 
+    // Create new request with same user
+    const mockReq2: any = {
+      method: 'GET',
+      originalUrl: '/analytics/dashboard',
+      user: { userId: 'user123' },
+    };
+    const mockRes2: any = {
+      json: jest.fn(),
+    };
+    const mockNext2 = jest.fn();
+
     // Second call with same user - should find cached data
-    middleware(mockReq, mockRes, mockNext);
-    expect(mockRes.json).toHaveBeenCalledWith(testData);
-    expect(mockNext).not.toHaveBeenCalled();
+    middleware(mockReq2, mockRes2, mockNext2);
+    expect(mockRes2.json).toHaveBeenCalledWith(testData);
+    expect(mockNext2).not.toHaveBeenCalled();
   });
 
   test('should isolate cache between different users', () => {
@@ -123,15 +137,27 @@ describe('Cache User Isolation', () => {
     middleware(mockReq, mockRes, mockNext);
     expect(mockNext).toHaveBeenCalled();
 
-    // Cache should use 'anonymous' as userId
+    // Simulate the response being sent (which would cache the data)
     const testData = { error: 'Not authenticated' };
-    cache.set('user:anonymous:/analytics/dashboard', testData);
+    mockRes.json(testData);
 
     // Reset mocks
     jest.clearAllMocks();
 
+    // Create new request (also anonymous)
+    const mockReq2: any = {
+      method: 'GET',
+      originalUrl: '/analytics/dashboard',
+      // No user property (anonymous)
+    };
+    const mockRes2: any = {
+      json: jest.fn(),
+    };
+    const mockNext2 = jest.fn();
+
     // Second call should find cached data
-    middleware(mockReq, mockRes, mockNext);
-    expect(mockRes.json).toHaveBeenCalledWith(testData);
+    middleware(mockReq2, mockRes2, mockNext2);
+    expect(mockRes2.json).toHaveBeenCalledWith(testData);
+    expect(mockNext2).not.toHaveBeenCalled();
   });
 });
