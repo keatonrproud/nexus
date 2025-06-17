@@ -151,17 +151,18 @@ apiClient.interceptors.response.use(
     }
 
     // Handle other errors
-    // Don't log 401 errors when on login page as they're expected
+    // Don't log 401/403 errors when on login page as they're expected
     const is401OnLogin = error.response?.status === 401 && isOnLogin;
+    const is403OnLogin = error.response?.status === 403 && isOnLogin;
     const isAuthMeRequest = originalRequest?.url?.includes("/auth/me");
 
-    // Be extra quiet about auth/me 401s on login page
+    // Be extra quiet about auth/me 401s and 403s on login page
     if (
       process.env.NODE_ENV === "development" &&
-      !(is401OnLogin && isAuthMeRequest)
+      !((is401OnLogin || is403OnLogin) && isAuthMeRequest)
     ) {
-      // Only log if it's not a 401 on login page OR not an auth/me request
-      if (!is401OnLogin) {
+      // Only log if it's not a 401/403 on login page for auth/me requests
+      if (!is401OnLogin && !is403OnLogin) {
         console.error("API Error:", {
           status: error.response?.status,
           message: error.response?.data?.message || error.message,

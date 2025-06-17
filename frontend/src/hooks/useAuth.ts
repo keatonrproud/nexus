@@ -13,8 +13,11 @@ const authApi = {
       // Backend returns { success: true, user: {...} }
       return response.data.user;
     } catch (error) {
-      // Handle 401 specifically
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // Handle 401 and 403 specifically - both indicate no valid authentication
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 401 || error.response?.status === 403)
+      ) {
         return null;
       }
       throw error;
@@ -26,8 +29,11 @@ const authApi = {
       const response = await apiClient.get("/auth/validate");
       return response.data.user;
     } catch (error) {
-      // Handle 401 specifically
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // Handle 401 and 403 specifically - both indicate no valid authentication
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 401 || error.response?.status === 403)
+      ) {
         return null;
       }
       throw error;
@@ -79,8 +85,11 @@ export function useAuth() {
     staleTime: 30 * 60 * 1000, // 30 minutes - longer than before for better persistence
     cacheTime: 24 * 60 * 60 * 1000, // 24 hours - much longer to survive app restarts
     retry: (failureCount, error) => {
-      // Don't retry on 401 errors (authentication failures)
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // Don't retry on 401/403 errors (authentication failures)
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 401 || error.response?.status === 403)
+      ) {
         return false;
       }
       // Retry up to 2 times for other errors
@@ -161,11 +170,11 @@ export function useAuth() {
     isLoggingIn,
     isLoggingOut,
 
-    // Error states - only show errors if not expected 401s on login page
+    // Error states - only show errors if not expected 401s/403s on login page
     error:
       !isOnLoginPage ||
       !axios.isAxiosError(error) ||
-      error.response?.status !== 401
+      (error.response?.status !== 401 && error.response?.status !== 403)
         ? error || loginMutation.error || logoutMutation.error
         : null,
 
